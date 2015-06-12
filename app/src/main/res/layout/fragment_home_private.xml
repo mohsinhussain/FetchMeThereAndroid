@@ -1,0 +1,142 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.webmedia7.mohsinhussain.fetchmethere.Fragment.HomePrivateFragment"
+    >
+
+    <com.google.android.gms.maps.MapView android:id="@+id/mapview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"/>
+
+    <LinearLayout
+        android:id="@+id/notificationLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:background="@android:color/transparent"
+        android:orientation="vertical">
+        <LinearLayout
+            android:id="@+id/messageLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="#505E56"
+            android:orientation="horizontal"
+            android:padding="15dp">
+            <com.webmedia7.mohsinhussain.fetchmethere.Classes.RoundedImageView
+                android:id="@+id/profile_image_view"
+                android:layout_width="50dp"
+                android:src="@drawable/private_user_icon_large"
+                android:background="@android:color/transparent"
+                android:layout_height="50dp" />
+            <TextView
+                android:id="@+id/messageTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:background="@android:color/transparent"
+                android:gravity="left"
+                android:text="Patrick wants to add you as his friend. You will be able to share your location with him after friendship."
+                android:textColor="#fff"/>
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/questionLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="#43433E"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/questionTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:background="@android:color/transparent"
+                android:text="Do you want to Add Patrick as your friend?"
+                android:padding="15dp"
+                android:textColor="#fff"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/acceptenceLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:weightSum="10"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/yesButton"
+                android:layout_width="0dp"
+                android:layout_weight="5"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_margin="1dp"
+                android:background="#43433E"
+                android:text="YES"
+                android:textColor="#fff"/>
+
+            <Button
+                android:id="@+id/noButton"
+                android:layout_width="0dp"
+                android:layout_weight="5"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_margin="1dp"
+                android:background="#43433E"
+                android:text="NO"
+                android:textColor="#fff"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/buttonsLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:weightSum="10"
+        android:alpha="0.7"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/businessButton"
+            android:layout_width="0dp"
+            android:layout_weight="5"
+            android:layout_height="wrap_content"
+            android:text="BUSINESSES"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:textColor="#fff"
+            android:background="#333"/>
+
+        <Button
+            android:id="@+id/locationsButton"
+            android:layout_width="0dp"
+            android:layout_weight="5"
+            android:layout_height="wrap_content"
+            android:text="LOCATIONS"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:textColor="#fff"
+            android:background="#333"/>
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/arc_menu_bg"
+        android:background="@color/black_overlay"
+        android:visibility="invisible"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></ImageView>
+
+    <com.capricorn.ArcMenu
+        android:id="@+id/arc_menu"
+        android:layout_width="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:layout_alignParentBottom="true"/>
+
+
+</RelativeLayout>

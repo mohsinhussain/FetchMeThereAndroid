@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.webmedia7.mohsinhussain.fetchmethere.Fragment.NavigationFragment"
+    >
+
+    <com.google.android.gms.maps.MapView android:id="@+id/mapview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"/>
+
+<LinearLayout
+    android:id="@+id/stepsLayout"
+    android:orientation="horizontal"
+    android:background="@drawable/button_bg"
+    android:layout_width="fill_parent"
+    android:gravity="center"
+    android:layout_centerHorizontal="true"
+    android:layout_above="@+id/instructions_text_view"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/maneuverImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="5dp"
+        />
+
+
+    <TextView
+        android:id="@+id/tv_distance_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:padding="10dp"
+        android:background="@android:color/transparent"
+        />
+
+
+</LinearLayout>
+
+    <TextView
+        android:id="@+id/instructions_text_view"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#342C29"
+        android:textColor="#fff"
+        android:padding="5dp"
+        android:gravity="center"
+        android:layout_alignParentBottom="true" />
+
+    <ImageView
+        android:id="@+id/cycleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/yellow_button_bg"
+        android:src="@drawable/bike"
+        android:padding="10dp"
+        android:layout_alignParentRight="true"
+        android:layout_margin="5dp"/>
+
+    <ImageView
+        android:id="@+id/walkButton"
+        android:padding="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/yellow_button_bg"
+        android:src="@drawable/walk"
+        android:layout_toLeftOf="@+id/cycleButton"
+        android:layout_margin="5dp"/>
+
+    <ImageView
+        android:id="@+id/carButton"
+        android:padding="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/yellow_button_bg"
+        android:src="@drawable/car"
+        android:layout_toLeftOf="@+id/walkButton"
+        android:layout_margin="5dp"/>
+
+    </RelativeLayout>

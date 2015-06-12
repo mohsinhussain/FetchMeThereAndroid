@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F3EB">
+
+    <TextView
+        android:id="@+id/title_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="15dp"
+        android:background="@android:color/transparent"
+        android:textSize="16dp"
+        android:text="Here you can see all your chat history:"/>
+
+    <ListView
+        android:id="@+id/chat_list_view"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:stackFromBottom="true"
+        android:transcriptMode="normal"
+        android:dividerHeight="5dp"
+        android:layout_above="@+id/enterTextLayout"
+        android:background="@android:color/transparent"
+        android:layout_below="@+id/title_text_view"
+        android:divider="@android:color/transparent"/>
+
+    <LinearLayout
+        android:id="@+id/enterTextLayout"
+        android:gravity="center"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:weightSum="10"
+        android:layout_margin="10dp"
+        android:padding="7dp"
+        android:background="#E8E8E8"
+        android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/inputEditText"
+            android:hint="Say something.."
+            android:layout_gravity="left"
+            android:gravity="left"
+            android:background="@android:color/transparent"
+            android:layout_width="0dp"
+            android:inputType="textLongMessage|textCapSentences"
+            android:imeOptions="actionSend"
+            android:layout_weight="8"
+            android:layout_height="fill_parent" />
+        <ImageButton android:id="@+id/sendButton"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="50dp"
+            android:src="@drawable/send_message_button_bg"
+            android:background="@drawable/button_bg"
+            />
+    </LinearLayout>
+
+
+</RelativeLayout>

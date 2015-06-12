@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F3EB">
+
+    <LinearLayout
+        android:id="@+id/main_linear_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@android:color/transparent"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/name_edit_text"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginBottom="5dp"
+            android:hint="Name of Location"/>
+
+        <EditText
+            android:id="@+id/address_edit_text"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:singleLine="true"
+            android:textSize="12sp"
+            android:layout_marginBottom="5dp"
+            android:hint="Address"/>
+
+        <EditText
+            android:id="@+id/lat_edit_text"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:textSize="12sp"
+            android:layout_marginBottom="5dp"
+            android:hint="Latitude"/>
+
+        <EditText
+            android:id="@+id/lang_edit_text"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:textSize="12sp"
+            android:layout_marginBottom="5dp"
+            android:hint="Longitude"/>
+
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/mapview_add_edit_location"
+            android:layout_width="fill_parent"
+            android:layout_height="180dp"
+            android:clickable="true"
+            />
+
+        <Gallery
+            android:layout_margin="10dp"
+            android:id="@+id/gallery"
+            android:layout_width="fill_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:background="@android:color/transparent"
+            android:layout_height="100dp" />
+
+
+        <Button android:id="@+id/addLocation"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:background="@drawable/button_bg"
+            android:text="ADD LOCATION"/>
+
+    </LinearLayout>
+
+
+</ScrollView>

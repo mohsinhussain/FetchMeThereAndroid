@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView  xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#F5F3EB"
+    >
+<LinearLayout
+    android:id="@+id/parentLayout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@android:color/transparent"
+    android:paddingTop="15dp"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/userDetailLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@android:color/transparent"
+        android:gravity="center"
+        android:layout_marginBottom="10dp"
+        android:orientation="vertical">
+
+        <com.webmedia7.mohsinhussain.fetchmethere.Classes.RoundedImageView
+            android:id="@+id/profile_image_view"
+            android:layout_width="50dp"
+            android:layout_centerVertical="true"
+            android:layout_margin="5dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/private_user_icon_large"
+            android:layout_height="50dp"
+            android:layout_marginLeft="12dp"/>
+        <TextView
+            android:id="@+id/nameTextView"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:text="Patrick"
+            android:textColor="#000"
+            android:background="@android:color/transparent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/commentEditText"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:hint="Write a comment"
+        android:textColor="#000"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/description_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:background="@android:color/transparent"
+        android:textSize="16dp"
+        android:text="Here you can see all your saved Locations:"/>
+
+    <LinearLayout
+        android:id="@+id/destination_linear_layout"
+        android:layout_width="fill_parent"
+        android:orientation="vertical"
+        android:layout_margin="15dp"
+        android:background="@android:color/transparent"
+        android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/location_detail_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@android:color/transparent"
+        android:weightSum="10">
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/mapview_add_location"
+            android:layout_weight="5"
+            android:layout_width="0dp"
+            android:layout_height="180dp"
+            android:clickable="true"
+            />
+
+        <LinearLayout
+            android:id="@+id/detailLinearLayout"
+            android:layout_weight="5"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/locaNameTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/abc_edit_text_material"
+                android:text="Current Location"/>
+
+            <TextView
+                android:id="@+id/addressTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/abc_edit_text_material"
+                android:text="Mobasa, South Africa"/>
+            <TextView
+                android:id="@+id/latTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/abc_edit_text_material"
+                android:text="lat: 47.127001"
+                android:singleLine="true"/>
+            <TextView
+                android:id="@+id/lang_TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/abc_edit_text_material"
+                android:text="lang: 12.231221"
+                android:singleLine="true"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/object_desc_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:background="@android:color/transparent"
+        android:textSize="16dp"
+        android:text="Here you can see all your saved Locations:"/>
+
+    <LinearLayout
+        android:id="@+id/object_linear_layout"
+        android:layout_width="fill_parent"
+        android:orientation="vertical"
+        android:layout_margin="15dp"
+        android:background="@android:color/transparent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/object_location_detail_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@android:color/transparent"
+            android:weightSum="10">
+            <com.google.android.gms.maps.MapView
+                android:id="@+id/object_mapview_add_location"
+                android:layout_weight="5"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:clickable="true"
+                />
+
+            <LinearLayout
+                android:id="@+id/object_detailLinearLayout"
+                android:layout_weight="5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/object_locaNameTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/abc_edit_text_material"
+                    android:text="Current Location"/>
+
+                <TextView
+                    android:id="@+id/object_addressTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/abc_edit_text_material"
+                    android:text="Mobasa, South Africa"/>
+                <TextView
+                    android:id="@+id/object_latTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/abc_edit_text_material"
+                    android:text="lat: 47.127001"
+                    android:singleLine="true"/>
+                <TextView
+                    android:id="@+id/object_longTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/abc_edit_text_material"
+                    android:text="lang: 12.231221"
+                    android:singleLine="true"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/activeTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:gravity="center"
+        android:visibility="gone"
+        android:text="Time to arrive at destination"
+        android:layout_margin="5dp"
+        android:singleLine="true"/>
+
+    <LinearLayout
+        android:id="@+id/furtherDetailLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center_horizontal"
+        android:background="@android:color/transparent"
+        android:gravity="center_horizontal">
+
+
+        <TextView
+            android:id="@+id/timeHeaderTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:gravity="center"
+            android:text="Time to arrive at destination"
+            android:layout_margin="5dp"
+            android:singleLine="true"/>
+        <TextView
+            android:id="@+id/timeValueTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:gravity="center"
+            android:layout_margin="5dp"
+            android:singleLine="true"/>
+
+        <TextView
+            android:id="@+id/distanceHeaderTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:gravity="center"
+            android:text="Distance completed"
+            android:layout_margin="5dp"
+            android:singleLine="true"/>
+        <TextView
+            android:id="@+id/distanceValueTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:gravity="center"
+            android:layout_margin="5dp"
+            android:singleLine="true"/>
+
+    </LinearLayout>
+
+
+
+</LinearLayout>
+
+</ScrollView>

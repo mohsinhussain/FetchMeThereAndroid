@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
+        <!-- Customize your theme here. -->
+        <item name="android:colorPrimary">#fff</item>
+        <item name="android:textColorPrimary">#3B3C37</item>
+        <item name="android:colorPrimaryDark">#fff</item>
+    </style>
+
+
+</resources>

@@ -1,0 +1,9 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:yourapp="http://schemas.android.com/apk/res-auto" >
+    <!-- Search, should appear as action button -->
+    <item android:id="@+id/action_add_location"
+        android:icon="@drawable/composer_icn_plus_pressed"
+        android:title="Add Location"
+        yourapp:showAsAction="ifRoom"  />
+    ...
+</menu>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.webmedia7.mohsinhussain.fetchmethere.Fragment.RegisterLandingPageFragment"
+    >
+
+    <RelativeLayout
+        android:id="@+id/main_relative_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/register_bg_first">
+
+        <ImageView
+            android:id="@+id/logo_image_view"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/logo_register"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/register_button"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:textColor="#343434"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="25dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/action_register"
+            android:background="@drawable/button_bg"/>
+
+        <RelativeLayout
+            android:id="@+id/desc_rel_layout"
+            android:layout_width="320dp"
+            android:layout_height="250dp"
+            android:gravity="bottom"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/register_text_bg"
+            android:layout_above="@+id/register_button">
+
+            <TextView
+                android:id="@+id/desc_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:textColor="#fff"
+                android:padding="20dp"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:text="@string/reg_first_description"
+                android:layout_centerInParent="true"
+                android:lines="4"/>
+
+            <LinearLayout
+                android:id="@+id/paging_images_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@android:color/transparent"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/desc_text_view"
+                android:layout_marginBottom="20dp">
+
+                <ImageView
+                    android:id="@+id/first_paging_image_view"
+                    android:background="@drawable/paging_image_selected"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"/>
+
+                <ImageView
+                    android:id="@+id/seconf_paging_image_view"
+                    android:background="@drawable/paging_image_normal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"/>
+
+                <ImageView
+                    android:id="@+id/third_paging_image_view"
+                    android:background="@drawable/paging_image_normal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"/>
+            </LinearLayout>
+
+        </RelativeLayout>
+    </RelativeLayout>
+
+    </RelativeLayout>

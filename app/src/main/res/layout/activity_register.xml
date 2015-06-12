@@ -1,0 +1,168 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/user_selection_bg"
+    android:fillViewport="true"
+    tools:context="com.webmedia7.mohsinhussain.fetchmethere.Activities.RegisterActivity">
+
+    <LinearLayout
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:layout_width="match_parent"
+        android:background="#cfff"
+        android:orientation="vertical"
+        android:layout_height="match_parent">
+    <LinearLayout
+        android:id="@+id/parentLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:gravity="top|center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/header_image_view"
+            android:layout_width="wrap_content"
+            android:background="@android:color/transparent"
+            android:src="@drawable/private_user_icon_large"
+            android:layout_height="wrap_content" />
+
+        <com.webmedia7.mohsinhussain.fetchmethere.Classes.RoundedImageView
+            android:id="@+id/profile_image_view"
+            android:layout_width="80dp"
+            android:visibility="gone"
+            android:background="@android:color/transparent"
+            android:layout_height="80dp" />
+
+        <TextView
+            android:id="@+id/header_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="Register as private user"
+            android:padding="10dp"
+            android:textSize="24sp"/>
+
+        <LinearLayout
+            android:id="@+id/registeration_form_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:background="@android:color/transparent"
+            android:gravity="top|center"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/mobile_number_linear_layout"
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:background="@android:color/transparent"
+                android:layout_height="wrap_content">
+
+                <Spinner
+                    android:id="@+id/country_code_spinner"
+                    android:layout_width="100dp"
+                    android:background="@drawable/abc_edit_text_material"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:layout_height="wrap_content"/>
+
+                <EditText
+                    android:id="@+id/mobile_number_0_edit_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:editable="false"
+                    android:text="(0)"
+                    android:layout_marginBottom="10dp"/>
+
+                <EditText
+                    android:id="@+id/mobile_number_edit_text"
+                    android:layout_width="fill_parent"
+                    android:layout_height="50dp"
+                    android:hint="Mobile Number"
+                    android:paddingLeft="10dp"
+                    android:inputType="phone"
+                    android:imeOptions="actionNext"
+                    android:singleLine="true"
+                    android:nextFocusDown="@+id/first_name_edit_text"
+                    android:layout_marginBottom="10dp"/>
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/first_name_edit_text"
+                android:layout_width="fill_parent"
+                android:layout_height="50dp"
+                android:inputType="textCapWords"
+                android:hint="FIRST NAME"
+                android:paddingLeft="10dp"
+                android:imeOptions="actionNext"
+                android:singleLine="true"
+                android:nextFocusDown="@+id/last_name_edit_text"
+                android:layout_marginBottom="10dp"/>
+
+            <EditText
+                android:id="@+id/last_name_edit_text"
+                android:layout_width="fill_parent"
+                android:layout_height="50dp"
+                android:inputType="textCapWords"
+                android:imeOptions="actionNext"
+                android:singleLine="true"
+                android:nextFocusDown="@+id/email_edit_text"
+                android:hint="LAST NAME"
+                android:paddingLeft="10dp"
+                android:layout_marginBottom="10dp"/>
+
+            <EditText
+                android:id="@+id/email_edit_text"
+                android:layout_width="fill_parent"
+                android:layout_height="50dp"
+                android:inputType="textEmailAddress"
+                android:imeOptions="actionDone"
+                android:singleLine="true"
+                android:nextFocusDown="@+id/add_profile_pic_button"
+                android:hint="E-MAIL"
+                android:paddingLeft="10dp"
+                android:layout_marginBottom="15dp"/>
+
+            <LinearLayout
+                android:id="@+id/app_picture_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="10"
+                android:background="@drawable/abc_edit_text_material">
+
+                <TextView
+                    android:id="@+id/button_text_view"
+                    android:gravity="left"
+                    android:background="@android:color/transparent"
+                    android:text="ADD PROFILE PICTURE"
+                    android:layout_width="wrap_content"
+                    android:layout_weight="9"
+                    android:layout_height="wrap_content" />
+                <ImageView
+                    android:id="@+id/button_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@drawable/upload_pic_icon"/>
+            </LinearLayout>
+
+        </LinearLayout>
+        </LinearLayout>
+
+    <Button
+        android:id="@+id/next_step_button"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:background="@drawable/button_bg"
+        android:textColor="@color/black_text"
+        android:hint="NEXT STEP"
+        android:layout_marginBottom="10dp"/>
+    </LinearLayout>
+
+</ScrollView>
