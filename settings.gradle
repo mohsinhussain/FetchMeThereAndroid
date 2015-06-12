@@ -1,0 +1,2 @@
+include ':app', ':arcMenu'
+project(':arcMenu').projectDir = new File('libs/arcMenu')
