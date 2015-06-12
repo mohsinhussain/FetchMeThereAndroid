@@ -380,17 +380,20 @@ public class HomePrivateFragment extends Fragment{
                                                              hideNotification();
                                                              Geocoder geocoder;
                                                              String snippet = "Unknown";
+                                                             String finalSnippet = null;
+                                                             if (getActivity() != null) {
+                                                                 List<Address> addresses;
+                                                                 geocoder = new Geocoder(getActivity(), Locale.getDefault());
 
-                                                             List<Address> addresses;
-                                                             geocoder = new Geocoder(getActivity(), Locale.getDefault());
-
-                                                             try {
-                                                                 addresses = geocoder.getFromLocation(currentLat, currentLang, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
-                                                                 snippet = addresses.get(0).getAddressLine(0) + ", " + addresses.get(0).getLocality() + ", " + addresses.get(0).getCountryName(); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-                                                             } catch (IOException e) {
-                                                                 e.printStackTrace();
+                                                                 try {
+                                                                     addresses = geocoder.getFromLocation(currentLat, currentLang, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+                                                                     snippet = addresses.get(0).getAddressLine(0) + ", " + addresses.get(0).getLocality() + ", " + addresses.get(0).getCountryName(); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+                                                                 } catch (IOException e) {
+                                                                     e.printStackTrace();
+                                                                 }
+                                                                 finalSnippet = snippet;
                                                              }
-                                                             final String finalSnippet = snippet;
+
                                                              ringProgressDialog = ProgressDialog.show(getActivity(), "Please wait ...", "Sending Location...", true);
                                                              ringProgressDialog.setCancelable(true);
 
@@ -759,10 +762,14 @@ public class HomePrivateFragment extends Fragment{
             locationManager.removeUpdates(this);
             locationManager.removeUpdates(locationListenerGps);
             setNewPosition();
-            Context context = getActivity();
-            int duration = Toast.LENGTH_SHORT;
-            Toast toast = Toast.makeText(context, "network enabled"+currentLat + "\n" + currentLang, duration);
-            toast.show();
+//
+//            Context context = getActivity();
+//            int duration = Toast.LENGTH_SHORT;
+//            Toast toast = Toast.makeText(context,
+//                    "network enabled"+currentLat
+//                            + "\n" + currentLang,
+//                    duration);
+//            toast.show();
         }
 
         public void onProviderDisabled(String provider) {
@@ -817,22 +824,28 @@ public class HomePrivateFragment extends Fragment{
         // Zoom in the Google Map
         map.animateCamera(CameraUpdateFactory.zoomTo(15));
 
-        Geocoder geocoder;
+        Geocoder geocoder = null;
         String snippet = "Unknown";
 
         List<Address> addresses;
-        geocoder = new Geocoder(getActivity(), Locale.getDefault());
-
-        try {
-            addresses = geocoder.getFromLocation(currentLat, currentLang, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
-            if(addresses.size()>0){
-                snippet = addresses.get(0).getAddressLine(0)+", "+addresses.get(0).getLocality()+", "+addresses.get(0).getCountryName(); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-            }
+        if(getActivity()!=null){
+            geocoder = new Geocoder(
+                    getActivity(),
+                    Locale.getDefault());
+            try {
+                addresses = geocoder.getFromLocation(currentLat, currentLang, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+                if(addresses.size()>0){
+                    snippet = addresses.get(0).getAddressLine(0)+", "+addresses.get(0).getLocality()+", "+addresses.get(0).getCountryName(); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+                }
 
 //            currentAddress = snippet;
-        } catch (IOException e) {
-            e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+
+
+
         currentMarker.setPosition(latLng);
     }
 
@@ -905,34 +918,34 @@ public class HomePrivateFragment extends Fragment{
                 {
                     currentLat = net_loc.getLatitude();
                     currentLang = net_loc.getLongitude();
-                    Context context = getActivity();
-                    Handler mainHandler = new Handler(context.getMainLooper());
-                    Runnable myRunnable = new Runnable(){
-                        @Override
-                        public void run() {
-                            Toast.makeText(getActivity(), "network lastknown " + currentLat + "\n" + currentLang, Toast.LENGTH_SHORT).show();
-                        }
-                    }; // This is your code
-                    mainHandler.post(myRunnable);
+//                    Context context = getActivity();
+//                    Handler mainHandler = new Handler(context.getMainLooper());
+//                    Runnable myRunnable = new Runnable(){
+//                        @Override
+//                        public void run() {
+//                            Toast.makeText(getActivity(), "network lastknown " + currentLat + "\n" + currentLang, Toast.LENGTH_SHORT).show();
+//                        }
+//                    }; // This is your code
+//                    mainHandler.post(myRunnable);
 
                 }
             }
-            Context context = getActivity();
-            Handler mainHandler = new Handler(context.getMainLooper());
-            Runnable myRunnable = new Runnable(){
-                @Override
-                public void run() {
-                    Toast.makeText(getActivity(), "network lastknown " + currentLat + "\n" + currentLang, Toast.LENGTH_SHORT).show();
-                    Location location = locationManager
-                            .getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-                    if (location != null) {
-                        currentLat = location.getLatitude();
-                        currentLang = location.getLongitude();
-                        Log.v("HomePrivateFragment", "no last known available");
-                    }
-                }
-            }; // This is your code
-            mainHandler.post(myRunnable);
+//            Context context = getActivity();
+//            Handler mainHandler = new Handler(context.getMainLooper());
+//            Runnable myRunnable = new Runnable(){
+//                @Override
+//                public void run() {
+//                    Toast.makeText(getActivity(), "network lastknown " + currentLat + "\n" + currentLang, Toast.LENGTH_SHORT).show();
+//                    Location location = locationManager
+//                            .getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+//                    if (location != null) {
+//                        currentLat = location.getLatitude();
+//                        currentLang = location.getLongitude();
+//                        Log.v("HomePrivateFragment", "no last known available");
+//                    }
+//                }
+//            }; // This is your code
+//            mainHandler.post(myRunnable);
 
 //            setNewPosition();
         }

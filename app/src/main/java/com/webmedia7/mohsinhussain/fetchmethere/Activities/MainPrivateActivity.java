@@ -28,13 +28,13 @@ import com.webmedia7.mohsinhussain.fetchmethere.Fragment.AboutFragment;
 import com.webmedia7.mohsinhussain.fetchmethere.Fragment.AddEditLocationFragment;
 import com.webmedia7.mohsinhussain.fetchmethere.Fragment.ChatFragment;
 import com.webmedia7.mohsinhussain.fetchmethere.Fragment.ContactsFragment;
-import com.webmedia7.mohsinhussain.fetchmethere.Fragment.FavouriteBusinessFragment;
 import com.webmedia7.mohsinhussain.fetchmethere.Fragment.HomePrivateFragment;
 import com.webmedia7.mohsinhussain.fetchmethere.Fragment.LocationDetailFragment;
 import com.webmedia7.mohsinhussain.fetchmethere.Fragment.MyLocationsFragment;
 import com.webmedia7.mohsinhussain.fetchmethere.Fragment.NavigationFragment;
 import com.webmedia7.mohsinhussain.fetchmethere.Fragment.NavigationHistoryDetailFragment;
 import com.webmedia7.mohsinhussain.fetchmethere.Fragment.NavigationHistoryListFragment;
+import com.webmedia7.mohsinhussain.fetchmethere.Fragment.ProfileFragment;
 import com.webmedia7.mohsinhussain.fetchmethere.Fragment.SettingsFragment;
 import com.webmedia7.mohsinhussain.fetchmethere.Model.NavDrawerItem;
 import com.webmedia7.mohsinhussain.fetchmethere.Model.NavigationHistory;
@@ -109,14 +109,14 @@ public class MainPrivateActivity extends ActionBarActivity implements HomePrivat
         // Find People
         navDrawerItems.add(new NavDrawerItem(navMenuTitles[1], navMenuIcons.getResourceId(1, -1)));
         // Photos
-        navDrawerItems.add(new NavDrawerItem(navMenuTitles[2], navMenuIcons.getResourceId(2, -1)));
+//        navDrawerItems.add(new NavDrawerItem(navMenuTitles[2], navMenuIcons.getResourceId(2, -1)));
         // Communities, Will add a counter here
-        navDrawerItems.add(new NavDrawerItem(navMenuTitles[3], navMenuIcons.getResourceId(3, -1)));
+        navDrawerItems.add(new NavDrawerItem(navMenuTitles[2], navMenuIcons.getResourceId(2, -1)));
         // Pages
-        navDrawerItems.add(new NavDrawerItem(navMenuTitles[4], navMenuIcons.getResourceId(4, -1)));
+        navDrawerItems.add(new NavDrawerItem(navMenuTitles[3], navMenuIcons.getResourceId(3, -1)));
         // What's hot, We  will add a counter here
+        navDrawerItems.add(new NavDrawerItem(navMenuTitles[4], navMenuIcons.getResourceId(4, -1)));
         navDrawerItems.add(new NavDrawerItem(navMenuTitles[5], navMenuIcons.getResourceId(5, -1)));
-        navDrawerItems.add(new NavDrawerItem(navMenuTitles[6], navMenuIcons.getResourceId(6, -1)));
 
 
         // Recycle the typed array
@@ -445,28 +445,31 @@ public class MainPrivateActivity extends ActionBarActivity implements HomePrivat
         // update the main content by replacing fragments
         Fragment fragment = null;
         switch (position) {
+            case 0:
+                fragment = new ProfileFragment();
+                break;
             case 1:
                 fragment = new HomePrivateFragment();
                 break;
             case 2:
                 fragment = new MyLocationsFragment();
                 break;
+//            case 3:
+//                fragment = new FavouriteBusinessFragment();
+//                break;
             case 3:
-                fragment = new FavouriteBusinessFragment();
-                break;
-            case 4:
                 fragment = new ContactsFragment();
                 Bundle bndle = new Bundle();
                 bndle.putString("action", "chat");
                 fragment.setArguments(bndle);
                 break;
-            case 5:
+            case 4:
                 fragment = new NavigationHistoryListFragment();
                 break;
-            case 6:
+            case 5:
                 fragment = new SettingsFragment();
                 break;
-            case 7:
+            case 6:
                 fragment = new AboutFragment();
                 break;
 
@@ -487,7 +490,12 @@ public class MainPrivateActivity extends ActionBarActivity implements HomePrivat
             // update selected item and title, then close the drawer
             mDrawerList.setItemChecked(position, true);
             mDrawerList.setSelection(position);
-            setTitle(navMenuTitles[position-1]);
+            if(position>0){
+                setTitle(navMenuTitles[position-1]);
+            }
+            else{
+                setTitle("PROFILE");
+            }
             mDrawerLayout.closeDrawer(mDrawerList);
         } else {
             // error in creating fragment

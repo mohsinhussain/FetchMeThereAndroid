@@ -62,8 +62,8 @@ public class ChooseUserActivity extends Activity {
     public void setListData()
     {
         userOptionModelArrayList.add(new UserOptionModel("PIVATE USER", "This is the description for private user login details.", R.drawable.private_user_icon));
-        userOptionModelArrayList.add(new UserOptionModel("BUSINESS USER", "This is the description for private user login details.", R.drawable.business_user_icon));
-        userOptionModelArrayList.add(new UserOptionModel("AGENT", "This is the description for private user login details.", R.drawable.agent_user_icon));
+//        userOptionModelArrayList.add(new UserOptionModel("BUSINESS USER", "This is the description for private user login details.", R.drawable.business_user_icon));
+//        userOptionModelArrayList.add(new UserOptionModel("AGENT", "This is the description for private user login details.", R.drawable.agent_user_icon));
 
 //        for (int i = 0; i < 11; i++) {
 //

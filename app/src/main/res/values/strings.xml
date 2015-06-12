@@ -32,7 +32,7 @@
     <string-array name="nav_drawer_items">
         <item >Home</item>
         <item >My Locations</item>
-        <item >Favourite Businesses</item>
+        <!--<item >Favourite Businesses</item>-->
         <item >Chat history</item>
         <item >Navigation history</item>
         <item >Settings</item>
@@ -43,7 +43,7 @@
     <array name="nav_drawer_icons">
         <item>@drawable/home_nav_ic</item>
         <item>@drawable/nav_anchor_icon_bg</item>
-        <item>@drawable/nav_business_white_icon_bg</item>
+        <!--<item>@drawable/nav_business_white_icon_bg</item>-->
         <item>@drawable/nav_chat_white_icon_bg</item>
         <item>@drawable/nav_navigation_history_white_icon_bg</item>
         <item>@drawable/nav_settings_white_icon_bg</item>

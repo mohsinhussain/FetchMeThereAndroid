@@ -20,7 +20,7 @@
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
             android:layout_marginBottom="5dp"
-            android:hint="Name of Location"/>
+            android:hint="Location Name"/>
 
         <EditText
             android:id="@+id/address_edit_text"
@@ -53,7 +53,7 @@
             android:layout_marginBottom="5dp"
             android:hint="Longitude"/>
 
-        <com.google.android.gms.maps.MapView
+        <com.webmedia7.mohsinhussain.fetchmethere.Classes.MyMapView
             android:id="@+id/mapview_add_edit_location"
             android:layout_width="fill_parent"
             android:layout_height="180dp"

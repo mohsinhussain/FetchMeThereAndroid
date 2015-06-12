@@ -31,7 +31,6 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -40,6 +39,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.webmedia7.mohsinhussain.fetchmethere.Adapters.GalleryImageAdapter;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.Constants;
+import com.webmedia7.mohsinhussain.fetchmethere.Classes.MyMapView;
 import com.webmedia7.mohsinhussain.fetchmethere.R;
 
 import java.io.ByteArrayOutputStream;
@@ -62,7 +62,7 @@ public class AddEditLocationFragment extends Fragment {
 
 //    private OnFragmentInteractionListener mListener;
 
-    MapView mapView;
+    MyMapView mapView;
     GoogleMap map;
     private LocationManager locationManager;
     private static final long MIN_TIME = 400;
@@ -97,7 +97,7 @@ public class AddEditLocationFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_add_location, container, false);
 
-        mapView = (MapView) rootView.findViewById(R.id.mapview_add_edit_location);
+        mapView = (MyMapView) rootView.findViewById(R.id.mapview_add_edit_location);
 
         imagesStringArray = new ArrayList<String>();
 
@@ -135,7 +135,6 @@ public class AddEditLocationFragment extends Fragment {
                     imagesStringArray= new ArrayList<String>();
                 }
 
-
                 nameEditText.setText(name);
                 addressEditText.setText(address);
                 latEditText.setText(Double.toString(lat));
@@ -152,6 +151,9 @@ public class AddEditLocationFragment extends Fragment {
                         Firebase postRef = ref.child("users").child(userId).child("myLocations").child(refId);
 
                         Map<String, Object> post1 = new HashMap<String, Object>();
+                        if(nameEditText.getText().toString().equalsIgnoreCase("")){
+                            nameEditText.setText("Current Location");
+                        }
                         post1.put("Name", nameEditText.getText().toString());
                         post1.put("Address", addressEditText.getText().toString());
                         post1.put("lat", latEditText.getText().toString());
@@ -204,7 +206,7 @@ public class AddEditLocationFragment extends Fragment {
             }
 
 
-            nameEditText.setText(name);
+//            nameEditText.setText(name);
             addressEditText.setText(address);
             latEditText.setText(Double.toString(lat));
             langEditText.setText(Double.toString(lang));
@@ -221,6 +223,9 @@ public class AddEditLocationFragment extends Fragment {
                     Firebase postRef = ref.child("users").child(userId).child("myLocations");
 
                     Map<String, Object> post1 = new HashMap<String, Object>();
+                    if (nameEditText.getText().toString().equalsIgnoreCase("")) {
+                        nameEditText.setText("Current Location");
+                    }
                     post1.put("Name", nameEditText.getText().toString());
                     post1.put("Address", addressEditText.getText().toString());
                     post1.put("lat", latEditText.getText().toString());
@@ -354,9 +359,9 @@ public class AddEditLocationFragment extends Fragment {
 
     public void selectImage(final int position) {
         final CharSequence[] items;
-        if (imagesStringArray==null){
-            imagesStringArray = new ArrayList<String>();
-        }
+//        if (imagesStringArray==null){
+//            imagesStringArray = new ArrayList<String>();
+//        }
         if(position==imagesStringArray.size()){
             items = new CharSequence[]{"Take Photo", "Choose from Library",
                     "Cancel"};
@@ -449,13 +454,13 @@ public class AddEditLocationFragment extends Fragment {
             } else if (requestCode == SELECT_FILE) {
                 Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                thumbnail.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
+                thumbnail.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
                 setProfileImageFile(thumbnail);
             }
             else if(requestCode == PIC_CROP){
                 Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                thumbnail.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
+                thumbnail.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
 
                 File destination = new File(Environment.getExternalStorageDirectory(),
                         System.currentTimeMillis() + ".jpg");
