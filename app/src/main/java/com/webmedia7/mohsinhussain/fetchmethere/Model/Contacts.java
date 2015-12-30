@@ -7,22 +7,30 @@ public class Contacts {
     String name;
     String mobileNumber;
     String userId;
-    String profilePicture;
     boolean friend;
     String profileImageString = "";
     String sortFriend;
+    boolean hasApp = false;
 
     public Contacts(){
 
     }
 
-    public Contacts(String name, String mobileNumber, String userId, String profilePicture, boolean friend, String profileImageString){
+    public Contacts(String name, String mobileNumber, String userId, boolean friend, String profileImageString, boolean hasApp){
         this.name = name;
         this.mobileNumber = mobileNumber;
         this.userId = userId;
-        this.profilePicture = profilePicture;
         this.friend = friend;
         this.profileImageString = profileImageString;
+        this.hasApp = hasApp;
+    }
+
+    public boolean isHasApp() {
+        return hasApp;
+    }
+
+    public void setHasApp(boolean hasApp) {
+        this.hasApp = hasApp;
     }
 
     public String getProfileImageString() {
@@ -71,13 +79,5 @@ public class Contacts {
 
     public void setUserId(String userId) {
         this.userId = userId;
-    }
-
-    public String getProfilePicture() {
-        return profilePicture;
-    }
-
-    public void setProfilePicture(String profilePicture) {
-        this.profilePicture = profilePicture;
     }
 }

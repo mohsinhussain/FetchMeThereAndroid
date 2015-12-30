@@ -2,11 +2,16 @@ package com.webmedia7.mohsinhussain.fetchmethere.Activities;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Base64;
@@ -15,15 +20,22 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.Constants;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.RoundedImageView;
+import com.webmedia7.mohsinhussain.fetchmethere.FetchMeThere;
 import com.webmedia7.mohsinhussain.fetchmethere.R;
+import com.webmedia7.mohsinhussain.fetchmethere.Services.RegistrationIntentService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,6 +67,13 @@ public class MobileVerificationActivity extends Activity {
     ImageView headerImageView;
     RoundedImageView profileImageView;
     ProgressDialog ringProgressDialog;
+    ProgressDialog GCMringProgressDialog;
+    String userId = "";
+
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    private static final String TAG = "MobileVerificationActivity";
+    private BroadcastReceiver mRegistrationBroadcastReceiver;
+    private ProgressBar mRegistrationProgressBar;
 
 
 
@@ -63,6 +82,7 @@ public class MobileVerificationActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mobile_verification);
         Firebase.setAndroidContext(this);
+        Firebase.getDefaultConfig().setPersistenceEnabled(true);
 
         firstInput = (EditText) findViewById(R.id.first_two_numbers_edit_text);
         secondInput = (EditText) findViewById(R.id.second_two_numbers_edit_text);
@@ -90,14 +110,13 @@ public class MobileVerificationActivity extends Activity {
         verifyAccountButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                enteredVerificationCode = firstInput.getText().toString()+secondInput.getText().toString()+thirdInput.getText().toString();
-                if(verificationCode.equalsIgnoreCase(enteredVerificationCode)){
+                enteredVerificationCode = firstInput.getText().toString() + secondInput.getText().toString() + thirdInput.getText().toString();
+                if (verificationCode.equalsIgnoreCase(enteredVerificationCode)) {
                     //Do the registeration here!
 
                     registerUser();
 
-                }
-                else{
+                } else {
                     Toast.makeText(getApplicationContext(), "Verification Code Is Invalid!", Toast.LENGTH_LONG).show();
                 }
 
@@ -170,13 +189,90 @@ public class MobileVerificationActivity extends Activity {
             }
 
         });
+
+        initUser();
+
+
+    }
+
+    private void initUser(){
+
+
+        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String token  = "";
+                SharedPreferences sharedPreferences =
+                        PreferenceManager.getDefaultSharedPreferences(context);
+                    token = sharedPreferences
+                            .getString(Constants.GCM_TOKEN, null);
+                final Firebase ref = new Firebase(Constants.BASE_URL);
+                Firebase postRef = ref.child("users").child(userId);
+
+                Map<String, Object> post1 = new HashMap<String, Object>();
+                post1.put("gcmToken", token);
+
+
+
+                postRef.updateChildren(post1, new Firebase.CompletionListener() {
+                    @Override
+                    public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                        if (firebaseError != null) {
+                            Toast.makeText(MobileVerificationActivity.this, "Token could not be saved. Please check your internet" + firebaseError.getMessage(), Toast.LENGTH_LONG).show();
+                        } else {
+                            System.out.println("Data saved successfully.");
+                            Intent mainIntent = new Intent(getApplicationContext(), MainPrivateActivity.class);
+                            mainIntent.putExtra("justRegistered", "yes");
+                            mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(mainIntent);
+                        }
+
+                        GCMringProgressDialog.dismiss();
+                    }
+                });
+            }
+        };
+//        mInformationTextView = (TextView) findViewById(R.id.informationTextView);
+
+
+
+    }
+
+    /**
+     * Check the device to make sure it has the Google Play Services APK. If
+     * it doesn't, display a dialog that allows users to download the APK from
+     * the Google Play Store or enable it in the device's system settings.
+     */
+    private boolean checkPlayServices() {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
+                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            } else {
+                Log.i(TAG, "This device is not supported.");
+                finish();
+            }
+            return false;
+        }
+        return true;
     }
 
     private void loggingUser(){
         ringProgressDialog = ProgressDialog.show(MobileVerificationActivity.this, "Please wait ...", "Signing In User ...", true);
         ringProgressDialog.setCancelable(true);
+//        InstanceID instanceID = InstanceID.getInstance(this);
+//        String token = "";
+//        try {
+//            token = instanceID.getToken(getString(R.string.gcm_defaultSenderId),
+//                    GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        Log.v("Token!", "Token: "+token);
         final Firebase ref = new Firebase(Constants.BASE_URL);
         Log.v("asda", "Password before logging in: "+password);
+//        final String finalToken = token;
         ref.authWithPassword(emailAuth, password, new Firebase.AuthResultHandler() {
             @Override
             public void onAuthenticated(AuthData authData) {
@@ -203,24 +299,27 @@ public class MobileVerificationActivity extends Activity {
                 map.put("displayName", firstNameString);
                 map.put("firstName", firstNameString);
                 map.put("lastName", lastNameString);
+                map.put("userId", authData.getUid());
                 map.put("mobileNumber", completeMobileNumber);
                 map.put("profileImageString", profileImageString);
+//                map.put("token", finalToken);
                 if(selectedUserString.equalsIgnoreCase("p")){
-                   map.put("private_registered", "true");
+                   map.put("privateRegistered", "true");
                 }
                 else if(selectedUserString.equalsIgnoreCase("b")){
-                    map.put("business_registered", "true");
-                    map.put("private_registered", "true");
+                    map.put("businessRegistered", "true");
+                    map.put("privateRegistered", "true");
                 }
                 else if(selectedUserString.equalsIgnoreCase("a")){
-                    map.put("agent_registered", "true");
-                    map.put("business_registered", "true");
-                    map.put("private_registered", "true");
+                    map.put("agentRegistered", "true");
+//                    map.put("businessRegistered", "true");
+                    map.put("privateRegistered", "true");
                 }
                 ref.child("users").child(authData.getUid()).updateChildren(map);
+//                ref.child("users").child(completeMobileNumber).updateChildren(map);
 //                ref.child("users").child(authData.getProviderData().get("email").toString()).setValue(map);
 
-
+                userId = authData.getUid();
                 preferenceSettings = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
                 preferenceEditor = preferenceSettings.edit();
                 preferenceEditor.putString("userId", authData.getUid());
@@ -231,12 +330,26 @@ public class MobileVerificationActivity extends Activity {
                 preferenceEditor.putString("mobileNumber", completeMobileNumber);
                 preferenceEditor.putString("selectedUserString", selectedUserString);
                 preferenceEditor.putString("profileImageString", profileImageString);
+                preferenceEditor.putString("unit", "kms");
+                preferenceEditor.putString("voice", "on");
+//                preferenceEditor.putString("token", finalToken);
+                preferenceEditor.putString("profileImageString", profileImageString);
                 preferenceEditor.commit();
                 ringProgressDialog.dismiss();
 
-                Intent mainIntent = new Intent(getApplicationContext(), MainPrivateActivity.class);
-                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(mainIntent);
+                //Initialising User - Generate GCM Token
+
+                if (checkPlayServices()) {
+                    // Start IntentService to register this application with GCM.
+                    GCMringProgressDialog = ProgressDialog.show(MobileVerificationActivity.this, "Please wait ...", "Initialising User ...", true);
+                    GCMringProgressDialog.setCancelable(true);
+                    Intent intent = new Intent(MobileVerificationActivity.this, RegistrationIntentService.class);
+                    startService(intent);
+                }
+
+
+
+
 
 
                 //Start Private Main Activity
@@ -420,6 +533,24 @@ public class MobileVerificationActivity extends Activity {
         countryCodeString = getIntent().getStringExtra(Constants.COUNTRY_CODE_STRING_INTENT);
         mobileNumberString = getIntent().getStringExtra(Constants.MOBILE_NUMBER_STRING_INTENT);
         mobileNumberTextView.setText(countryCodeString+" (0) "+mobileNumberString);
+    }
+
+    @Override
+    protected void onResume() {
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                new IntentFilter(Constants.REGISTRATION_COMPLETE));
+        super.onResume();
+
+
+        Tracker t = FetchMeThere.getInstance().tracker;
+        t.setScreenName("Mobile Verification");
+        t.send(new HitBuilders.ScreenViewBuilder().build());
+    }
+
+    @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
+        super.onPause();
     }
 
     private void populateData(){

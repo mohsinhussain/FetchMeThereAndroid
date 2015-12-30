@@ -14,6 +14,10 @@
         <item name="android:background">#FFFFFF</item>
     </style>
 
+        <style name="mydialogstyle" parent="android:style/Theme.Dialog">
+            <item name="android:windowBackground">@color/yellow_button_bg</item>
+            <item name="android:windowNoTitle">false</item>
+        </style>
 
 
     <style name="ButtonBar">

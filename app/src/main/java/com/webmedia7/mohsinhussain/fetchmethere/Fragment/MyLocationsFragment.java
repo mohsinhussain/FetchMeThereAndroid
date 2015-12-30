@@ -1,8 +1,10 @@
 package com.webmedia7.mohsinhussain.fetchmethere.Fragment;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,8 +19,11 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.webmedia7.mohsinhussain.fetchmethere.Adapters.MyLocationsAdapter;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.Constants;
+import com.webmedia7.mohsinhussain.fetchmethere.FetchMeThere;
 import com.webmedia7.mohsinhussain.fetchmethere.Model.Location;
 import com.webmedia7.mohsinhussain.fetchmethere.R;
 
@@ -40,6 +45,7 @@ public class MyLocationsFragment extends Fragment {
     ArrayList<String> imagesArray = new ArrayList<String>();
     MyLocationsAdapter mAdapter;
     ProgressDialog ringProgressDialog;
+//    SwipeDetector swipeDetector;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -51,6 +57,8 @@ public class MyLocationsFragment extends Fragment {
         userId = preferenceSettings.getString("userId", null);
 
         locationsListView = (ListView) rootView.findViewById(R.id.location_list_view);
+//        swipeDetector = new SwipeDetector();
+//        locationsListView.setOnTouchListener(swipeDetector);
 
         mAdapter = new MyLocationsAdapter(getActivity(), locationArrayList);
 
@@ -65,6 +73,10 @@ public class MyLocationsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        Tracker t = FetchMeThere.getInstance().tracker;
+        t.setScreenName("My Locations");
+        t.send(new HitBuilders.ScreenViewBuilder().build());
 
         ringProgressDialog = ProgressDialog.show(getActivity(), "Please wait ...", "Finding Locations...", true);
         ringProgressDialog.setCancelable(true);
@@ -156,8 +168,35 @@ public class MyLocationsFragment extends Fragment {
         switch (item.getItemId()) {
             case R.id.action_add_location:
             {
-                if (mListener!=null){
-                    mListener.onActionAddLocation();
+                if(locationArrayList.size()<30){
+                    if (mListener!=null){
+                        mListener.onActionAddLocation();
+                    }
+                }
+                else{
+                    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which){
+                                case DialogInterface.BUTTON_POSITIVE:
+                                    //Yes button clicked
+                                    /**Implement Fragment Method**/
+//                                    final Firebase ref = new Firebase(Constants.BASE_URL);
+//                                    final Firebase myLocationRef = ref.child("users").child(userId).child("myLocations").child(refId);
+//                                    myLocationRef.setValue(null);
+//                                    getFragmentManager().popBackStack();
+
+                                    break;
+
+                                case DialogInterface.BUTTON_NEGATIVE:
+                                    //No button clicked
+                                    break;
+                            }
+                        }
+                    };
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("Sorry").setMessage("You cannot save more than 30 locations").setPositiveButton("OK", dialogClickListener).show();
                 }
                 return true;
             }

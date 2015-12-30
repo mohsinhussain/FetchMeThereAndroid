@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="/Users/mohsinhussain/AndroidStudioProjects/FetchMeThere/libs/arcMenu/src/main/assets"/></dataSet><dataSet config="release"><source path="/Users/mohsinhussain/AndroidStudioProjects/FetchMeThere/libs/arcMenu/src/release/assets"/></dataSet></merger>
+<merger version="3"><dataSet config="main"><source path="C:\Users\moshin\Downloads\FetchMeThere\FetchMeThere\libs\arcMenu\src\main\assets"/></dataSet><dataSet config="release"><source path="C:\Users\moshin\Downloads\FetchMeThere\FetchMeThere\libs\arcMenu\src\release\assets"/></dataSet></merger>

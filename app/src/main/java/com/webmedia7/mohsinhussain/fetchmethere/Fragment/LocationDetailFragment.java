@@ -9,6 +9,9 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -21,6 +24,8 @@ import android.widget.Toast;
 
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -34,6 +39,7 @@ import com.webmedia7.mohsinhussain.fetchmethere.Activities.EnLargedImageViewScre
 import com.webmedia7.mohsinhussain.fetchmethere.Adapters.NormalGalleryAdapter;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.Constants;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.RoundedImageView;
+import com.webmedia7.mohsinhussain.fetchmethere.FetchMeThere;
 import com.webmedia7.mohsinhussain.fetchmethere.R;
 
 import java.io.IOException;
@@ -111,10 +117,14 @@ public class LocationDetailFragment extends Fragment {
         });
 
 
+
+
         Bundle bundle = this.getArguments();
 
         if(bundle.containsKey("action")) {
             if (bundle.getString("action", null).equalsIgnoreCase("detail")) {
+                setHasOptionsMenu(true);
+
                 commentsEditText.setVisibility(View.GONE);
 
                 name = bundle.getString("name", null);
@@ -289,6 +299,36 @@ public class LocationDetailFragment extends Fragment {
     }
 
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        Bundle bundle = this.getArguments();
+        if(bundle.containsKey("action")) {
+            if (bundle.getString("action", null).equalsIgnoreCase("detail")) {
+                if (menu.hasVisibleItems()) {
+                    super.onCreateOptionsMenu(menu, inflater);
+                } else {
+                    inflater.inflate(R.menu.menu_location_detail_fragment, menu);
+                }
+            }
+        }
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_delete_location:
+            {
+                if (mListener!=null){
+                    mListener.onActionDeleteLocation(refId, userId);
+                }
+                return true;
+            }
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 
     public void initMap(Bundle savedInstanceState){
         mapView.onCreate(savedInstanceState);
@@ -319,6 +359,9 @@ public class LocationDetailFragment extends Fragment {
     public void onResume() {
         mapView.onResume();
         super.onResume();
+        Tracker t = FetchMeThere.getInstance().tracker;
+        t.setScreenName("Location Detail");
+        t.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
     @Override
@@ -359,6 +402,7 @@ public class LocationDetailFragment extends Fragment {
         public void onSendSavedLocation(String locName, String address, String lat, String lang);
         public void onLocationSent(String friendName, String locationName);
         public void onRequestLocationSent(String friendName);
+        public void onActionDeleteLocation(String refId, String userId);
     }
 
 }

@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.widget.ImageView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.webmedia7.mohsinhussain.fetchmethere.FetchMeThere;
 import com.webmedia7.mohsinhussain.fetchmethere.R;
 
 public class EnLargedImageViewScreen extends Activity {
@@ -48,4 +51,13 @@ public class EnLargedImageViewScreen extends Activity {
 //
 //        return super.onOptionsItemSelected(item);
 //    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Tracker t = FetchMeThere.getInstance().tracker;
+        t.setScreenName("Image Enlarged");
+        t.send(new HitBuilders.ScreenViewBuilder().build());
+    }
 }

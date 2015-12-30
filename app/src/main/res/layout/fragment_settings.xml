@@ -1,22 +1,32 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F3EB"
+    android:padding="5dp"
+    android:layout_gravity="center_horizontal"
+    android:gravity="center_horizontal"
+    tools:context="com.webmedia7.mohsinhussain.fetchmethere.Activities.RegisterActivity">
 
-    <TextView
-        android:id="@+id/txtLabel"
+    <Switch
+        android:id="@+id/unitSwitch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:textSize="16dp"
-        android:text="Settings"/>
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:textOn="KMs"
+        android:textOff="Miles"
+        android:checked="true"
+        android:layout_marginTop="20dp"
+        android:text="Navigation Units" />
 
-    <ImageView android:layout_width="wrap_content"
+    <Switch
+        android:id="@+id/voiceSwitch"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/txtLabel"
-        android:src="@drawable/ic_home"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"/>
-
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/unitSwitch"
+        android:layout_marginTop="20dp"
+        android:checked="true"
+        android:text="Voice Navigation" />
 
 </RelativeLayout>

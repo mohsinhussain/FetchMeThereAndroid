@@ -16,7 +16,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,6 +35,8 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -48,6 +49,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.webmedia7.mohsinhussain.fetchmethere.Activities.MainPrivateActivity;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.Constants;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.RoundedImageView;
+import com.webmedia7.mohsinhussain.fetchmethere.FetchMeThere;
 import com.webmedia7.mohsinhussain.fetchmethere.R;
 
 import java.io.IOException;
@@ -83,7 +85,7 @@ public class HomePrivateFragment extends Fragment{
     SharedPreferences preferenceSettings;
     LinearLayout notificationLayout, messageLayout, questionLayout, acceptenceLayout;
     TextView messageTextView, questionTextView;
-    Button yesButton, noButton;
+    Button yesButton, noButton, bussinessButton;
     double currentLat = 0;
     double currentLang = 0;
     Marker currentMarker;
@@ -109,6 +111,7 @@ public class HomePrivateFragment extends Fragment{
         // Gets the MapView from the XML layout and creates it
         mapView = (MapView) rootView.findViewById(R.id.mapview);
         myLocationsButton = (Button) rootView.findViewById(R.id.locationsButton);
+        bussinessButton = (Button) rootView.findViewById(R.id.businessButton);
         arcMenuBgLayout = (ImageView) rootView.findViewById(R.id.arc_menu_bg);
         notificationLayout = (LinearLayout) rootView.findViewById(R.id.notificationLayout);
         messageLayout = (LinearLayout) rootView.findViewById(R.id.messageLayout);
@@ -127,6 +130,14 @@ public class HomePrivateFragment extends Fragment{
             public void onClick(View v) {
                 if (mListener != null) {
                     mListener.onMyLocationsClicked();
+                }
+            }
+        });
+        bussinessButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mListener != null) {
+                    mListener.onBusinessesClicked();
                 }
             }
         });
@@ -175,8 +186,10 @@ public class HomePrivateFragment extends Fragment{
                             arcMenuBgLayout.setVisibility(View.INVISIBLE);
                             break;
 
-                        case 3:
-                            mListener.onBusinessesClicked();
+                        case 2:
+                            if(mListener!=null){
+                                mListener.onBusinessesClicked();
+                            }
                             arcMenuBgLayout.setVisibility(View.INVISIBLE);
                             break;
 
@@ -222,6 +235,30 @@ public class HomePrivateFragment extends Fragment{
         mapView.onResume();
 //        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, locationListenerGps); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
         updateLocation();
+
+
+
+
+//        GoogleAnalytics analytics = GoogleAnalytics.getInstance(getActivity());
+//        Tracker tracker = analytics.newTracker("UA-64606335-1"); // Send hits to tracker id UA-XXXX-Y
+//
+//        Applicatio
+// All subsequent hits will be send with screen name = "main screen"
+//        tracker.setScreenName("Home Screen");
+//
+//        tracker.send(new HitBuilders.EventBuilder()
+//                .setCategory("UX")
+//                .setAction("click")
+//                .setLabel("submit")
+//                .build());
+//
+//// Builder parameters can overwrite the screen name set on the tracker.
+//        tracker.send(new HitBuilders.EventBuilder()
+//                .setCategory("UX")
+//                .setAction("click")
+//                .setLabel("help popup")
+//                .setScreenName("help popup dialog")
+//                .build());
 
         //Show Location Sent notfication
         MainPrivateActivity activity = (MainPrivateActivity) getActivity();
@@ -477,8 +514,10 @@ public class HomePrivateFragment extends Fragment{
                             }
                         }
                         Constants.setImageViewFromString(friendProfileImageString, profileImageView);
-                        messageTextView.setText(name + " wants to add you as his friend. You will be able to share your location with him after friendship.");
+                        messageTextView.setText(name + " wants to be your friend. You will be able to share your location with "+name+" after friendship.");
                         questionTextView.setText("Do you want to Add "+name+" as your friend? Mobile Number: "+mobileNumber);
+                        yesButton.setText("ADD AS FRIEND");
+                        noButton.setText("DECLINE");
                         final String finalMobileNumber = mobileNumber;
                         final String finalName = name;
                         final String finalFriendProfileImageString = friendProfileImageString;
@@ -531,6 +570,10 @@ public class HomePrivateFragment extends Fragment{
             }
         });
 
+        Tracker t = FetchMeThere.getInstance().tracker;
+        t.setScreenName("Home");
+        t.send(new HitBuilders.ScreenViewBuilder().build());
+
         super.onResume();
     }
 
@@ -551,7 +594,7 @@ public class HomePrivateFragment extends Fragment{
 
     public void hideNotification(){
 
-        TranslateAnimation anim = new TranslateAnimation( 0, 0,0, -400);
+        TranslateAnimation anim = new TranslateAnimation( 0, 0,0, -600);
         anim.setDuration(1500);
         anim.setFillAfter(true);
         notificationLayout.startAnimation(anim);
@@ -737,10 +780,10 @@ public class HomePrivateFragment extends Fragment{
             locationManager.removeUpdates(this);
             locationManager.removeUpdates(locationListenerNetwork);
             setNewPosition();
-            Context context = getActivity();
-            int duration = Toast.LENGTH_SHORT;
-            Toast toast = Toast.makeText(context, "gps enabled "+currentLat + "\n" + currentLang, duration);
-            toast.show();
+//            Context context = getActivity();
+//            int duration = Toast.LENGTH_SHORT;
+//            Toast toast = Toast.makeText(context, "gps enabled "+currentLat + "\n" + currentLang, duration);
+//            toast.show();
 
         }
 
@@ -833,6 +876,7 @@ public class HomePrivateFragment extends Fragment{
                     getActivity(),
                     Locale.getDefault());
             try {
+                System.out.println("Lat: "+currentLat+" Lang: "+currentLang);
                 addresses = geocoder.getFromLocation(currentLat, currentLang, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
                 if(addresses.size()>0){
                     snippet = addresses.get(0).getAddressLine(0)+", "+addresses.get(0).getLocality()+", "+addresses.get(0).getCountryName(); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
@@ -872,28 +916,28 @@ public class HomePrivateFragment extends Fragment{
                 if (gps_loc.getTime() > net_loc.getTime()) {
                     currentLat = gps_loc.getLatitude();
                     currentLang = gps_loc.getLongitude();
-                    Context context = getActivity();
-                    Handler mainHandler = new Handler(context.getMainLooper());
-                    Runnable myRunnable = new Runnable(){
-                        @Override
-                        public void run() {
-                            Toast.makeText(getActivity(), "network lastknown " + currentLat + "\n" + currentLang, Toast.LENGTH_SHORT).show();
-                        }
-                    }; // This is your code
-                    mainHandler.post(myRunnable);
+//                    Context context = getActivity();
+//                    Handler mainHandler = new Handler(context.getMainLooper());
+//                    Runnable myRunnable = new Runnable(){
+//                        @Override
+//                        public void run() {
+//                            Toast.makeText(getActivity(), "network lastknown " + currentLat + "\n" + currentLang, Toast.LENGTH_SHORT).show();
+//                        }
+//                    }; // This is your code
+//                    mainHandler.post(myRunnable);
                 } else {
                     currentLat = net_loc.getLatitude();
                     currentLang = net_loc.getLongitude();
-                    Context context = getActivity();
-                    // Get a handler that can be used to post to the main thread
-                    Handler mainHandler = new Handler(context.getMainLooper());
-                    Runnable myRunnable = new Runnable(){
-                        @Override
-                        public void run() {
-                            Toast.makeText(getActivity(), "network lastknown " + currentLat + "\n" + currentLang, Toast.LENGTH_SHORT).show();
-                        }
-                    }; // This is your code
-                    mainHandler.post(myRunnable);
+//                    Context context = getActivity();
+//                    // Get a handler that can be used to post to the main thread
+//                    Handler mainHandler = new Handler(context.getMainLooper());
+//                    Runnable myRunnable = new Runnable(){
+//                        @Override
+//                        public void run() {
+//                            Toast.makeText(getActivity(), "network lastknown " + currentLat + "\n" + currentLang, Toast.LENGTH_SHORT).show();
+//                        }
+//                    }; // This is your code
+//                    mainHandler.post(myRunnable);
                 }
 
             }
@@ -902,15 +946,15 @@ public class HomePrivateFragment extends Fragment{
                 {
                     currentLat = gps_loc.getLatitude();
                     currentLang = gps_loc.getLongitude();
-                    Context context = getActivity();
-                    Handler mainHandler = new Handler(context.getMainLooper());
-                    Runnable myRunnable = new Runnable(){
-                        @Override
-                        public void run() {
-                            Toast.makeText(getActivity(), "network lastknown " + currentLat + "\n" + currentLang, Toast.LENGTH_SHORT).show();
-                        }
-                    }; // This is your code
-                    mainHandler.post(myRunnable);
+//                    Context context = getActivity();
+//                    Handler mainHandler = new Handler(context.getMainLooper());
+//                    Runnable myRunnable = new Runnable(){
+//                        @Override
+//                        public void run() {
+//                            Toast.makeText(getActivity(), "network lastknown " + currentLat + "\n" + currentLang, Toast.LENGTH_SHORT).show();
+//                        }
+//                    }; // This is your code
+//                    mainHandler.post(myRunnable);
                 }
 
             }

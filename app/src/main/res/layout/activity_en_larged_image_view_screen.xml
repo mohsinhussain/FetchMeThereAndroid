@@ -5,11 +5,11 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:scaleType="fitXY"
+        android:scaleType="fitCenter"
         android:layout_centerInParent="true"
         android:adjustViewBounds="true"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="fill_parent"
         />
 
 

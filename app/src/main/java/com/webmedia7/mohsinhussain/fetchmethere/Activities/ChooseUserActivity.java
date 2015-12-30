@@ -9,8 +9,11 @@ import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.webmedia7.mohsinhussain.fetchmethere.Adapters.UserOptionAdapter;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.Constants;
+import com.webmedia7.mohsinhussain.fetchmethere.FetchMeThere;
 import com.webmedia7.mohsinhussain.fetchmethere.Model.UserOptionModel;
 import com.webmedia7.mohsinhussain.fetchmethere.R;
 
@@ -102,6 +105,14 @@ public class ChooseUserActivity extends Activity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Tracker t = FetchMeThere.getInstance().tracker;
+        t.setScreenName("Choose User Type");
+        t.send(new HitBuilders.ScreenViewBuilder().build());
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

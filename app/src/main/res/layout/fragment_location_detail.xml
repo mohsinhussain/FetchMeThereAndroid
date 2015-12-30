@@ -68,7 +68,7 @@
         android:id="@+id/main_linear_layout"
         android:layout_width="fill_parent"
         android:orientation="vertical"
-        android:layout_margin="15dp"
+        android:layout_margin="10dp"
         android:background="@android:color/transparent"
         android:layout_height="wrap_content">
 
@@ -130,7 +130,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:background="@android:color/transparent"
-            android:layout_height="100dp" />
+            android:layout_height="wrap_content" />
 
 
     </LinearLayout>
@@ -140,8 +140,10 @@
         android:id="@+id/location_button"
         android:background="#F2EB47"
         android:layout_width="fill_parent"
-        android:layout_marginTop="20dp"
-        android:layout_margin="15dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
         android:text="EDIT CONTACT"
         android:textSize="18sp"
         android:textStyle="bold"
@@ -151,8 +153,9 @@
         android:id="@+id/send_location_button"
         android:background="#F2EB47"
         android:layout_width="fill_parent"
-        android:layout_marginTop="10dp"
-        android:layout_margin="15dp"
+        android:layout_marginBottom="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
         android:text="SEND LOCATION"
         android:visibility="gone"
         android:textSize="18sp"

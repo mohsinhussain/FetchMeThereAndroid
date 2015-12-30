@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <item android:drawable="@drawable/arc_menu_main_button_bg" android:state_pressed="true"/>
-    <item android:drawable="@drawable/arc_menu_main_button_bg"/>
-
-</selector><!-- From: file:/Users/mohsinhussain/AndroidStudioProjects/FetchMeThere/libs/arcMenu/res/drawable/composer_button.xml -->

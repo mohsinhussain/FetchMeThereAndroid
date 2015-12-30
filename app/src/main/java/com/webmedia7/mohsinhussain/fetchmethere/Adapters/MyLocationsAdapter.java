@@ -29,7 +29,7 @@ public class MyLocationsAdapter extends BaseAdapter implements View.OnClickListe
     Location tempValues = null;
     int i = 0;
     public boolean[] mHighlightedPositions;
-
+//    SwipeDetector swipeDetector;
 
     /*************  CustomAdapter Constructor *****************/
     public MyLocationsAdapter(Activity a, ArrayList<Location> d) {
@@ -38,10 +38,11 @@ public class MyLocationsAdapter extends BaseAdapter implements View.OnClickListe
         activity = a;
         data=d;
         mHighlightedPositions = new boolean[d.size()];
-
+//        this.swipeDetector = swipeDetector;
         /***********  Layout inflator to call external xml layout () ***********/
         inflater = ( LayoutInflater )activity.
                 getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
 
     }
 
@@ -63,6 +64,8 @@ public class MyLocationsAdapter extends BaseAdapter implements View.OnClickListe
     public long getItemId(int position) {
         return position;
     }
+
+
 
 
     /********* Create a holder Class to contain inflated xml file elements *********/
@@ -149,45 +152,73 @@ public class MyLocationsAdapter extends BaseAdapter implements View.OnClickListe
         @Override
         public void onClick(View arg0) {
 
-            LinearLayout optionButton = (LinearLayout)arg0.findViewById(R.id.option_button_layout);
+//            if(swipeDetector.swipeDetected()){
+//                if(swipeDetector.getAction() == SwipeDetector.Action.None) {
+                    LinearLayout optionButton = (LinearLayout)arg0.findViewById(R.id.option_button_layout);
+//                    TextView optionTextView = (TextView) arg0.findViewById(R.id.option_text_view);
+//                    optionTextView.setText("SEE MORE");
+                    for(int i=0; i<mHighlightedPositions.length;i++){
+                        if(i==mPosition){
+                            if(mHighlightedPositions[i]) {
+                                optionButton.setVisibility(View.GONE);
+                                mHighlightedPositions[i] = false;
+                            }else {
+                                optionButton.setVisibility(View.VISIBLE);
+                                optionButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        MainPrivateActivity act = (MainPrivateActivity)activity;
+                                        Location loc = data.get(mPosition);
+                                        act.onSeeMore(loc.getName(), loc.getAddress(), loc.getLatitude(), loc.getLongitude(), loc.getImagesArray(), loc.getRefId());
 
-//            if(mHighlightedPositions[mPosition]) {
-//                optionButton.setVisibility(View.INVISIBLE);
-//                mHighlightedPositions[mPosition] = false;
-//            }else {
-//                optionButton.setVisibility(View.VISIBLE);
-//                mHighlightedPositions[mPosition] = true;
-//            }
-
-            for(int i=0; i<mHighlightedPositions.length;i++){
-                if(i==mPosition){
-                    if(mHighlightedPositions[i]) {
-                        optionButton.setVisibility(View.GONE);
-                        mHighlightedPositions[i] = false;
-                    }else {
-                        optionButton.setVisibility(View.VISIBLE);
-                        optionButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                MainPrivateActivity act = (MainPrivateActivity)activity;
-                                Location loc = data.get(mPosition);
-                                act.onSeeMore(loc.getName(), loc.getAddress(), loc.getLatitude(), loc.getLongitude(), loc.getImagesArray(), loc.getRefId());
-
+                                    }
+                                });
+                                mHighlightedPositions[i] = true;
                             }
-                        });
-                        mHighlightedPositions[i] = true;
+                        }
+                        else{
+                            mHighlightedPositions[i] = false;
+                        }
                     }
-                }
-                else{
-                    mHighlightedPositions[i] = false;
-                }
-            }
 
-            notifyDataSetChanged();
+                    notifyDataSetChanged();
+//            }
+//            else{
+//                    //Swipe Hua hae
+//                    LinearLayout optionButton = (LinearLayout)arg0.findViewById(R.id.option_button_layout);
+//                    TextView optionTextView = (TextView) arg0.findViewById(R.id.option_text_view);
+//                    optionTextView.setText("DELETE");
+//                    for(int i=0; i<mHighlightedPositions.length;i++){
+//                        if(i==mPosition){
+//                            if(mHighlightedPositions[i]) {
+//                                optionButton.setVisibility(View.GONE);
+//                                mHighlightedPositions[i] = false;
+//
+//                            }else {
+//                                optionButton.setVisibility(View.VISIBLE);
+//                                optionButton.setOnClickListener(new View.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(View v) {
+//                                        MainPrivateActivity act = (MainPrivateActivity)activity;
+//                                        Location loc = data.get(mPosition);
+//                                        act.onSeeMore(loc.getName(), loc.getAddress(), loc.getLatitude(), loc.getLongitude(), loc.getImagesArray(), loc.getRefId());
+//
+//                                    }
+//                                });
+//                                mHighlightedPositions[i] = true;
+//                            }
+//                        }
+//                        else{
+//                            mHighlightedPositions[i] = false;
+//                        }
+//                    }
+//
+//                    notifyDataSetChanged();
+//                }
 
 
 
-
+//            }
 
 
 //            ChooseUserActivity act = (ChooseUserActivity)activity;

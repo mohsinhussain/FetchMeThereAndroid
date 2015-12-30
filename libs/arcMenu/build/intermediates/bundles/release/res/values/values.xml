@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- From: file:/Users/mohsinhussain/AndroidStudioProjects/FetchMeThere/libs/arcMenu/res/values/attrs.xml -->
+    <!-- From: file:/C:/Users/moshin/Downloads/FetchMeThere/FetchMeThere/libs/arcMenu/res/values/attrs.xml -->
     <eat-comment/>
     <attr format="dimension|reference" name="childSize"/>
     <attr format="float|reference" name="fromDegrees"/>

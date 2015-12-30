@@ -12,6 +12,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -23,6 +25,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.Constants;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.RoundedImageView;
+import com.webmedia7.mohsinhussain.fetchmethere.FetchMeThere;
 import com.webmedia7.mohsinhussain.fetchmethere.R;
 
 /**
@@ -240,6 +243,9 @@ public class NavigationHistoryDetailFragment extends Fragment {
         mapView.onResume();
         objMapView.onResume();
         super.onResume();
+        Tracker t = FetchMeThere.getInstance().tracker;
+        t.setScreenName("Navigation History Detail");
+        t.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
     @Override

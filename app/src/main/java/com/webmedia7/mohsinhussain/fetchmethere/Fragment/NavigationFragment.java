@@ -29,6 +29,8 @@ import android.widget.Toast;
 
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -43,6 +45,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.Constants;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.DirectionsJSONParser;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.Speaker;
+import com.webmedia7.mohsinhussain.fetchmethere.FetchMeThere;
 import com.webmedia7.mohsinhussain.fetchmethere.R;
 
 import org.json.JSONObject;
@@ -73,7 +76,6 @@ public class NavigationFragment extends Fragment implements LocationListener {
     String myDisplayName = "";
     private static final long MIN_TIME = 400;
     private static final float MIN_DISTANCE = 1;
-    SharedPreferences preferenceSettings;
     LinearLayout mainLinearLayout;
     private LocationManager locationManager;
     double currentLat = 0;
@@ -107,6 +109,11 @@ public class NavigationFragment extends Fragment implements LocationListener {
     String myProfileImageString = "";
     String friendProfileImageString = "";
     ImageView maneuverImageView;
+    private SharedPreferences preferenceSettings;
+    private SharedPreferences.Editor preferenceEditor;
+
+    private String unit = "";
+    private String voice = "";
 
     private final int CHECK_CODE = 0x1;
     private final int LONG_DURATION = 5000;
@@ -223,7 +230,14 @@ public class NavigationFragment extends Fragment implements LocationListener {
             }
         });
 
-        checkTTS();
+        preferenceSettings = getActivity().getSharedPreferences(Constants.MY_PREFS_NAME, getActivity().MODE_PRIVATE);
+        unit = preferenceSettings.getString("unit", null);
+        voice = preferenceSettings.getString("voice", null);
+
+
+            checkTTS();
+
+
 
         // Initializing
 
@@ -238,7 +252,6 @@ public class NavigationFragment extends Fragment implements LocationListener {
 //                    }
 //                });
 
-        preferenceSettings = getActivity().getSharedPreferences(Constants.MY_PREFS_NAME, getActivity().MODE_PRIVATE);
         userId = preferenceSettings.getString("userId", null);
         myDisplayName = preferenceSettings.getString("displayName", null);
         myProfileImageString = preferenceSettings.getString("profileImageString", null);
@@ -470,6 +483,7 @@ public class NavigationFragment extends Fragment implements LocationListener {
         geocoder = new Geocoder(getActivity(), Locale.getDefault());
 
         try {
+            System.out.println("Lat: "+currentLat+" Lang: "+currentLang);
             addresses = geocoder.getFromLocation(currentLat, currentLang, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
             if(addresses.size()>0){
                 snippet = addresses.get(0).getAddressLine(0)+", "+addresses.get(0).getLocality()+", "+addresses.get(0).getCountryName(); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
@@ -535,6 +549,9 @@ public class NavigationFragment extends Fragment implements LocationListener {
     @Override
     public void onResume() {
         mapView.onResume();
+        Tracker t = FetchMeThere.getInstance().tracker;
+        t.setScreenName("Navigation");
+        t.send(new HitBuilders.ScreenViewBuilder().build());
 //        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
 
         setupNewLocation();
@@ -591,11 +608,23 @@ public class NavigationFragment extends Fragment implements LocationListener {
 
         float totalDistance = locationA.distanceTo(locationB);
         int totalresult =(int) totalDistance;
-        String totalDistanceString = totalresult+" meters to "+friendName;
-        if(totalDistance>1000){
-            float kms = totalresult/1000;
-            totalDistanceString = String.format("%.2f", kms)+" kilometers to "+friendName;
+        String totalDistanceString = "";
+        if(unit.equalsIgnoreCase("miles")){
+            totalDistance = (float) (totalDistance * 3.28084);
+            totalDistanceString = totalresult+" feet to "+friendName;
+            if(totalDistance>1000){
+                float miles = totalresult/1000;
+                totalDistanceString = String.format("%.2f", miles)+" Miles to "+friendName;
+            }
         }
+        else{
+            totalDistanceString = totalresult+" meters to "+friendName;
+            if(totalDistance>1000){
+                float kms = totalresult/1000;
+                totalDistanceString = String.format("%.2f", kms)+" KMs to "+friendName;
+            }
+        }
+
 
 
         if(mPolyLine!=null){
@@ -686,11 +715,24 @@ public class NavigationFragment extends Fragment implements LocationListener {
             String noHtml = "";
 
             if (endPointPosition+1!=maneuvers.size()){
-                String instruction = +result+" meters";
-                if(distance>1000){
-                    float kms = result/1000;
-                    instruction =String.format("%.2f", kms)+" kilometers";
+                String instruction = "";
+                if(unit.equalsIgnoreCase("miles")){
+                    result = (int) (result * 3.28084);
+                    instruction = +result+" feet";
+                    if(distance>1000){
+                        float kms = result/1000;
+                        instruction =String.format("%.2f", kms)+" Miles";
+                    }
                 }
+                else{
+                    instruction = +result+" meters";
+                    if(distance>1000){
+                        float kms = result/1000;
+                        instruction =String.format("%.2f", kms)+" kilometers";
+                    }
+                }
+
+
 
                 instrunctionsTextView.setText(instruction);
                 if(maneuvers.get(endPointPosition+1).equalsIgnoreCase("turn-sharp-left")){
@@ -760,10 +802,21 @@ public class NavigationFragment extends Fragment implements LocationListener {
 
             }
             else{
-                String instruction =+result+" meters";
-                if(distance>1000){
-                    float kms = result/1000;
-                    instruction =String.format("%.2f", kms)+" kilometers";
+                String instruction = "";
+                if(unit.equalsIgnoreCase("miles")){
+                    result = (int) (result * 3.28084);
+                    instruction = +result+" feet";
+                    if(distance>1000){
+                        float kms = result/1000;
+                        instruction =String.format("%.2f", kms)+" Miles";
+                    }
+                }
+                else{
+                    instruction = +result+" meters";
+                    if(distance>1000){
+                        float kms = result/1000;
+                        instruction =String.format("%.2f", kms)+" kilometers";
+                    }
                 }
 
                 instrunctionsTextView.setText(instruction);
@@ -839,7 +892,9 @@ public class NavigationFragment extends Fragment implements LocationListener {
 
 //            ttobj.speak(noHtml, TextToSpeech.QUEUE_FLUSH, null);
             if (speaker!=null){
-                speaker.speak(noHtml);
+                if(voice.equalsIgnoreCase("on")){
+                    speaker.speak(noHtml);
+                }
             }
 
             tvDistanceDuration.setText(noHtml);
@@ -921,6 +976,16 @@ public class NavigationFragment extends Fragment implements LocationListener {
         // Destination of route
         String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
 
+        // unit enabled
+        String unit = "";
+        if(unit.equalsIgnoreCase("kms")){
+            unit = "units=metric";
+        }
+        else{
+            unit = "units=imperial";
+        }
+
+
         // Sensor enabled
         String sensor = "sensor=false";
 
@@ -929,7 +994,7 @@ public class NavigationFragment extends Fragment implements LocationListener {
         String APIKey = "key=AIzaSyAm3zFVDshvK5054kyeNM9TPdbIFGtQuhs";
 
         // Building the parameters to the web service
-        String parameters = str_origin + "&" + str_dest + "&" + mode + "&" + APIKey;
+        String parameters = str_origin + "&" + str_dest + "&" + mode + "&" + unit + "&" + APIKey;
 
         // Output format
         String output = "json";
@@ -1178,10 +1243,22 @@ public class NavigationFragment extends Fragment implements LocationListener {
 
 
                 if (endPointPosition+1!=maneuvers.size()){
-                    String instruction = result22+" meters";
-                    if(distance22>1000){
-                        float kms = result22/1000;
-                        instruction = String.format("%.2f", kms)+" kilometers";
+
+                    String instruction = "";
+                    if(unit.equalsIgnoreCase("miles")){
+                        result22 = (int) (result22 * 3.28084);
+                        instruction = +result22+" feet";
+                        if(distance22>1000){
+                            float kms = result22/1000;
+                            instruction =String.format("%.2f", kms)+" Miles";
+                        }
+                    }
+                    else{
+                        instruction = +result22+" meters";
+                        if(distance22>1000){
+                            float kms = result22/1000;
+                            instruction =String.format("%.2f", kms)+" kilometers";
+                        }
                     }
 
                     instrunctionsTextView.setText(instruction);
@@ -1248,7 +1325,9 @@ public class NavigationFragment extends Fragment implements LocationListener {
                     String htmlString = html.get(endPointPosition+1);
                     String noHtml = htmlString.replaceAll("<[^>]*>", "");
                     if (speaker!=null){
-                        speaker.speak(noHtml);
+                        if(voice.equalsIgnoreCase("on")){
+                            speaker.speak(noHtml);
+                        }
                     }
 
                     tvDistanceDuration.setText(noHtml);
@@ -1256,10 +1335,22 @@ public class NavigationFragment extends Fragment implements LocationListener {
 
                 }
                 else{
-                    String instruction = result22+" meters";
-                    if(distance22>1000){
-                        float kms = result22/1000;
-                        instruction = String.format("%.2f", kms)+" kilometers";
+
+                    String instruction = "";
+                    if(unit.equalsIgnoreCase("miles")){
+                        result22 = (int) (result22 * 3.28084);
+                        instruction = +result22+" feet";
+                        if(distance22>1000){
+                            float kms = result22/1000;
+                            instruction =String.format("%.2f", kms)+" Miles";
+                        }
+                    }
+                    else{
+                        instruction = +result22+" meters";
+                        if(distance22>1000){
+                            float kms = result22/1000;
+                            instruction =String.format("%.2f", kms)+" kilometers";
+                        }
                     }
 
                     instrunctionsTextView.setText(instruction);
@@ -1326,7 +1417,9 @@ public class NavigationFragment extends Fragment implements LocationListener {
                     String htmlString = html.get(endPointPosition);
                     String noHtml = htmlString.replaceAll("<[^>]*>", "");
                     if (speaker!=null){
-                        speaker.speak(noHtml);
+                        if(voice.equalsIgnoreCase("on")){
+                            speaker.speak(noHtml);
+                        }
                     }
                     tvDistanceDuration.setText(noHtml);
 
@@ -1348,11 +1441,25 @@ public class NavigationFragment extends Fragment implements LocationListener {
 
                 float totalDistance = locationC.distanceTo(locationD);
                 int totalresult =(int) totalDistance;
-                String totalDistanceString = totalresult+" meters to "+friendName;
-                if(totalDistance>1000){
-                    float kms = totalresult/1000;
-                    totalDistanceString = String.format("%.2f", kms)+" kilometers to "+friendName;
+
+                String totalDistanceString = "";
+                if(unit.equalsIgnoreCase("miles")){
+                    totalresult = (int) (totalresult * 3.28084);
+                    totalDistanceString = totalresult+" feet to "+friendName;
+                    if(totalDistance>1000){
+                        float kms = totalresult/1000;
+                        totalDistanceString = String.format("%.2f", kms)+" Miles to "+friendName;
+                    }
                 }
+                else{
+                    totalDistanceString = totalresult+" meters to "+friendName;
+                    if(totalDistance>1000){
+                        float kms = totalresult/1000;
+                        totalDistanceString = String.format("%.2f", kms)+" KMs to "+friendName;
+                    }
+                }
+
+
 
 
                 String totalDurationString = "Total Duration: "+totalDuration;

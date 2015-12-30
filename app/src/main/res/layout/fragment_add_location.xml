@@ -17,6 +17,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textSize="12sp"
+            android:inputType="textCapWords"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
             android:layout_marginBottom="5dp"
@@ -28,6 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
+            android:inputType="textCapWords"
             android:singleLine="true"
             android:textSize="12sp"
             android:layout_marginBottom="5dp"
@@ -53,6 +55,33 @@
             android:layout_marginBottom="5dp"
             android:hint="Longitude"/>
 
+        <LinearLayout
+            android:id="@+id/app_picture_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="10"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/abc_edit_text_material">
+
+            <TextView
+                android:id="@+id/button_text_view"
+                android:gravity="left"
+                android:background="@android:color/transparent"
+                android:text="ADD PICTURE"
+                android:layout_width="wrap_content"
+                android:layout_weight="9"
+                android:layout_height="wrap_content" />
+            <ImageView
+                android:id="@+id/button_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@drawable/upload_pic_icon"/>
+        </LinearLayout>
+
         <com.webmedia7.mohsinhussain.fetchmethere.Classes.MyMapView
             android:id="@+id/mapview_add_edit_location"
             android:layout_width="fill_parent"
@@ -66,14 +95,15 @@
             android:layout_width="fill_parent"
             android:layout_gravity="center"
             android:gravity="center"
+            android:visibility="gone"
             android:background="@android:color/transparent"
-            android:layout_height="100dp" />
+            android:layout_height="wrap_content" />
 
 
         <Button android:id="@+id/addLocation"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="5dp"
             android:layout_marginBottom="15dp"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"

@@ -10,6 +10,11 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <uses-permission android:name="com.webmedia7.mohsinhussain.fetchmethere.permission.C2D_MESSAGE"/>
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
+    <permission android:name="com.webmedia7.mohsinhussain.fetchmethere.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
     <!-- If your project needs to access location services, it'll also need the following permissions too: -->
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -25,7 +30,9 @@
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
+    <!-- Optional permission for reliable local dispatching on non-Google Play devices -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <!--
@@ -37,10 +44,15 @@
         android:allowBackup="true"
         android:icon="@drawable/app_logo"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme"
+        android:name=".FetchMeThere">
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
+        <meta-data
+            android:name="com.google.android.gms.analytics.globalConfigResource"
+            android:resource="@xml/analytics_global_config" />
 
         <!--
             <meta-data
@@ -50,12 +62,73 @@
 
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyBN5lfLlPwxC1DWbmrySr9zT0FIvhjWKxI" />
-        //Release Key: AIzaSyAm3zFVDshvK5054kyeNM9TPdbIFGtQuhs
-        //Debug Key: AIzaSyBN5lfLlPwxC1DWbmrySr9zT0FIvhjWKxI
+            android:value="AIzaSyAm3zFVDshvK5054kyeNM9TPdbIFGtQuhs" />
+        <!--//Release Key: AIzaSyAm3zFVDshvK5054kyeNM9TPdbIFGtQuhs-->
+        <!--//Debug Key: AIzaSyBN5lfLlPwxC1DWbmrySr9zT0FIvhjWKxI-->
+
+
+        <receiver
+            android:name="com.google.android.gms.gcm.GcmReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="com.example.gcm" />
+            </intent-filter>
+        </receiver>
+        <service
+            android:name=".Services.GcmListenerService"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".Services.MyInstanceIDListenerService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.gms.iid.InstanceID"/>
+            </intent-filter>
+        </service>
+        <service
+            android:name=".Services.RegistrationIntentService"
+            android:exported="false">
+        </service>
+
+
+
+
+
+        <!-- Optionally, register AnalyticsReceiver and AnalyticsService to support background
+        dispatching on non-Google Play devices -->
+        <receiver android:name="com.google.android.gms.analytics.AnalyticsReceiver"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.analytics.ANALYTICS_DISPATCH" />
+            </intent-filter>
+        </receiver>
+        <service android:name="com.google.android.gms.analytics.AnalyticsService"
+            android:enabled="true"
+            android:exported="false"/>
+
+        <!-- Optionally, register CampaignTrackingReceiver and CampaignTrackingService to enable
+           installation campaign reporting -->
+        <receiver android:name="com.google.android.gms.analytics.CampaignTrackingReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+        </receiver>
+        <service android:name="com.google.android.gms.analytics.CampaignTrackingService" />
+
+
+        <service android:name=".Services.SimpleIntentService"/>
+
         <activity
             android:name=".Activities.LoginActivity"
             android:label="@string/title_activity_login"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize|stateHidden" >
         </activity>
 
@@ -65,30 +138,37 @@
 
         <activity
             android:name=".Activities.SplashActivity"
+            android:screenOrientation="portrait"
             android:label="@string/app_name" >
         </activity>
         <activity
             android:name=".Activities.ChooseUserActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_choose_user" >
         </activity>
         <activity
             android:name=".Activities.RegisterActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_register" >
         </activity>
         <activity
             android:name=".Activities.MobileVerificationActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_mobile_verification" >
         </activity>
         <activity
             android:name=".Activities.MainPrivateActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_main_private" >
         </activity>
         <activity
             android:name=".Activities.LandingActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_landing" >
         </activity>
         <activity
             android:name=".Activities.RegisterLandingPageActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_landing" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -98,6 +178,7 @@
         </activity>
         <activity
             android:name=".Activities.EnLargedImageViewScreen"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_en_larged_image_view_screen" >
         </activity>
     </application>

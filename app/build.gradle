@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
-
+apply plugin: 'com.google.gms.google-services'
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
 
     packagingOptions {
         exclude 'META-INF/LICENSE'
@@ -13,7 +13,7 @@ android {
     defaultConfig {
         applicationId "com.webmedia7.mohsinhussain.fetchmethere"
         minSdkVersion 14
-        targetSdkVersion 21
+        targetSdkVersion 23
         versionCode 1
         versionName "1.0"
     }
@@ -25,21 +25,40 @@ android {
     }
 }
 
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(":arcMenu")
+android {
+    useLibrary 'org.apache.http.legacy'
 }
 
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':arcMenu')
+    //    compile 'com.twilio.sdk:twilio-java-sdk:3.4.5'
+//    C:\Users\moshin\Downloads\FetchMeThere\FetchMeThere\libs\twilioclient-android.jar
+    compile files('Users/moshin/Downloads/FetchMeThere/FetchMeThere/libs/twilioclient-android.jar')
+}
+
+//dependencies {
+//    compile group: 'org.apache.httpcomponents' , name: 'httpclient-android' , version: '4.3.5.1'
+//}
+
+//dependencies {
+//    compile fileTree(dir: 'libs', include: ['*.jar'])
+//    compile 'com.twilio.sdk:twilio-java-sdk:3.4.5'
+//}
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:21.0.3'
+    compile 'com.google.android.gms:play-services:7.5.0'
+}
+
+dependencies {
+    compile 'com.android.support:appcompat-v7:23.0.1'
     compile 'com.google.android.gms:play-services:7.0.0'
 }
 dependencies {
-    compile 'com.android.support:support-v4:21.+'
+    compile 'com.android.support:support-v4:23.0.1'
 }
 dependencies {
-    compile 'com.firebase:firebase-client-android:2.2.1+'
+    compile 'com.firebase:firebase-client-android:2.3.0+'
 }
 
 

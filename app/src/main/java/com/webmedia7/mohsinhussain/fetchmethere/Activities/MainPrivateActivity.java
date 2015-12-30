@@ -1,6 +1,7 @@
 package com.webmedia7.mohsinhussain.fetchmethere.Activities;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -18,10 +19,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.webmedia7.mohsinhussain.fetchmethere.Adapters.NavDrawerListAdapter;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.Constants;
 import com.webmedia7.mohsinhussain.fetchmethere.Fragment.AboutFragment;
@@ -67,6 +72,7 @@ public class MainPrivateActivity extends ActionBarActivity implements HomePrivat
     private SharedPreferences.Editor preferenceEditor;
 
     private String displayName;
+    private String userId;
     private String profileImageString;
     String locationSentMessage = "";
 
@@ -77,16 +83,36 @@ public class MainPrivateActivity extends ActionBarActivity implements HomePrivat
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main_private);
+        if(!Firebase.getDefaultConfig().isPersistenceEnabled()){
+            Firebase.getDefaultConfig().setPersistenceEnabled(true);
+        }
         Firebase.setAndroidContext(this);
+
+
 
         preferenceSettings = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
         displayName = preferenceSettings.getString("displayName", null);
+        userId = preferenceSettings.getString("userId", null);
         profileImageString = preferenceSettings.getString("profileImageString", null);
+
+        if(!preferenceSettings.contains("voice")){
+            preferenceSettings = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
+            preferenceEditor = preferenceSettings.edit();
+            preferenceEditor.putString("voice", "on");
+            preferenceEditor.commit();
+        }
+
+        if(!preferenceSettings.contains("units")){
+            preferenceSettings = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
+            preferenceEditor = preferenceSettings.edit();
+            preferenceEditor.putString("unit", "kms");
+            preferenceEditor.commit();
+        }
         Log.v("HELOO",displayName);
 
 
         mTitle = getTitle();
-        mDrawerTitle = "DrawerTitle";
+        mDrawerTitle = "FetchMeThere";
 
         // load slide menu items
         navMenuTitles = getResources().getStringArray(R.array.nav_drawer_items);
@@ -158,6 +184,23 @@ public class MainPrivateActivity extends ActionBarActivity implements HomePrivat
         mDrawerList.setOnItemClickListener(new SlideMenuClickListener());
 
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        final Firebase ref = new Firebase(Constants.BASE_URL);
+        final Firebase myStatusRef = ref.child("users").child(userId).child("status");
+        myStatusRef.setValue("online");
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        final Firebase ref = new Firebase(Constants.BASE_URL);
+        final Firebase myStatusRef = ref.child("users").child(userId).child("status");
+        myStatusRef.setValue("offline");
     }
 
     public void onLoadNavigationHistoryDetail(NavigationHistory navHistory){
@@ -261,7 +304,17 @@ public class MainPrivateActivity extends ActionBarActivity implements HomePrivat
 
     @Override
     public void onBusinessesClicked() {
+        final Dialog dialog = new Dialog(MainPrivateActivity.this, R.style.mydialogstyle);
+        dialog.setContentView(R.layout.dialog_business_coming_soon);
+        Button dialogButton = (Button) dialog.findViewById(R.id.dialogButtonOK);
+        dialogButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
 
+        dialog.show();
     }
 
     @Override
@@ -324,7 +377,7 @@ public class MainPrivateActivity extends ActionBarActivity implements HomePrivat
         Bundle bndle = new Bundle();
         bndle.putString("friendId", friendId);
         bndle.putString("friendName", friendName);
-        bndle.putString("profileImageString", profileImageString);
+        bndle.putString("profileImageString", friendProfileImageString);
         bndle.putString("action", "chat");
         chatFragment.setArguments(bndle);
         FragmentManager fragmentManager = getFragmentManager();
@@ -365,7 +418,7 @@ public class MainPrivateActivity extends ActionBarActivity implements HomePrivat
         editLocationsFragment.setArguments(bndle);
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.frame_container, editLocationsFragment);
+        fragmentTransaction.replace(R.id.frame_container, editLocationsFragment, "editLocation");
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
@@ -378,6 +431,7 @@ public class MainPrivateActivity extends ActionBarActivity implements HomePrivat
         bndle.putString("address", address);
         bndle.putString("lat", lat);
         bndle.putString("lang", lang);
+        bndle.putString("profileImageString", profileImageString);
         bndle.putString("action", "sendSavedLocation");
         contactsFragment.setArguments(bndle);
         FragmentManager fragmentManager = getFragmentManager();
@@ -390,27 +444,39 @@ public class MainPrivateActivity extends ActionBarActivity implements HomePrivat
     @Override
     public void onLocationSent(String friendName, String locationName) {
         locationSentMessage = "Your location is successfully sent to "+friendName+". Acceptence is pending";
-
-
-//        FragmentManager fm = getFragmentManager();
-//        for(int i = 0; i < fm.getBackStackEntryCount(); ++i) {
-//            fm.popBackStack();
-//        }
-//        Fragment homeFragment = new HomePrivateFragment();
-//        Bundle bndle = new Bundle();
-//        bndle.putString("action", "locationSent");
-//        bndle.putString("friendName", friendName);
-//        bndle.putString("locationName", locationName);
-//        homeFragment.setArguments(bndle);
-//        FragmentManager fragmentManager = getFragmentManager();
-//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//        fragmentTransaction.replace(R.id.frame_container, homeFragment);
-//        fragmentTransaction.commit();
     }
 
     @Override
     public void onRequestLocationSent(String friendName) {
         locationSentMessage = "We sent your location request to "+friendName;
+    }
+
+    @Override
+    public void onActionDeleteLocation(final String refId, final String userId) {
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
+                        //Yes button clicked
+                        /**Implement Fragment Method**/
+                        final Firebase ref = new Firebase(Constants.BASE_URL);
+                        final Firebase myLocationRef = ref.child("users").child(userId).child("myLocations").child(refId);
+                        myLocationRef.setValue(null);
+                        getFragmentManager().popBackStack();
+
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        //No button clicked
+                        break;
+                }
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainPrivateActivity.this);
+        builder.setTitle("Confirm").setMessage("Are you sure you want to delete this location?").setPositiveButton("Yes", dialogClickListener)
+                .setNegativeButton("No", dialogClickListener).show();
     }
 
     public String sendMessagetoShowPopUp(){
@@ -444,33 +510,62 @@ public class MainPrivateActivity extends ActionBarActivity implements HomePrivat
     private void displayView(int position) {
         // update the main content by replacing fragments
         Fragment fragment = null;
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         switch (position) {
             case 0:
-                fragment = new ProfileFragment();
+                if(isFragmentInBackstack(fragmentManager,"profile")){
+                    fragmentManager.popBackStackImmediate("profile", 0);
+                }
+                else{
+                    fragment = new ProfileFragment();
+                    fragmentTransaction.replace(R.id.frame_container, fragment, "profile");
+                    fragmentTransaction.addToBackStack("profile");
+                    fragmentTransaction.commit();
+                }
                 break;
             case 1:
                 fragment = new HomePrivateFragment();
+                fragmentTransaction.replace(R.id.frame_container, fragment, "home");
+                fragmentTransaction.commit();
                 break;
             case 2:
-                fragment = new MyLocationsFragment();
+                if(isFragmentInBackstack(fragmentManager,"myLocation")){
+                    fragmentManager.popBackStackImmediate("myLocation", 0);
+                }
+                else{
+                    fragment = new MyLocationsFragment();
+                    fragmentTransaction.replace(R.id.frame_container, fragment, "myLocation");
+                    fragmentTransaction.addToBackStack("myLocation");
+                    fragmentTransaction.commit();
+                }
                 break;
-//            case 3:
-//                fragment = new FavouriteBusinessFragment();
-//                break;
             case 3:
                 fragment = new ContactsFragment();
                 Bundle bndle = new Bundle();
                 bndle.putString("action", "chat");
                 fragment.setArguments(bndle);
+                fragmentTransaction.replace(R.id.frame_container, fragment, "chat");
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
                 break;
             case 4:
                 fragment = new NavigationHistoryListFragment();
+                fragmentTransaction.replace(R.id.frame_container, fragment, "navHistoryList");
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
                 break;
             case 5:
                 fragment = new SettingsFragment();
+                fragmentTransaction.replace(R.id.frame_container, fragment, "settings");
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
                 break;
             case 6:
                 fragment = new AboutFragment();
+                fragmentTransaction.replace(R.id.frame_container, fragment, "about");
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
                 break;
 
             default:
@@ -478,20 +573,16 @@ public class MainPrivateActivity extends ActionBarActivity implements HomePrivat
         }
 
         if (fragment != null) {
-            FragmentManager fragmentManager = getFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.frame_container, fragment);
-            fragmentTransaction.commit();
-
-//            FragmentManager fragmentManager = getFragmentManager();
-//            fragmentManager.beginTransaction()
-//                    .replace(R.id.frame_container, fragment).commit();
-
-            // update selected item and title, then close the drawer
-            mDrawerList.setItemChecked(position, true);
+            mDrawerList.setItemChecked(position, false);
             mDrawerList.setSelection(position);
-            if(position>0){
-                setTitle(navMenuTitles[position-1]);
+            if(position>0) {
+                if (position == 3) {
+                    setTitle("Chats");
+                }
+                else{
+                    setTitle(navMenuTitles[position - 1]);
+                }
+
             }
             else{
                 setTitle("PROFILE");
@@ -500,8 +591,18 @@ public class MainPrivateActivity extends ActionBarActivity implements HomePrivat
         } else {
             // error in creating fragment
             mDrawerList.setItemChecked(position, false);
-            Log.e("MainActivity", "Profile Clicked");
+            mDrawerLayout.closeDrawer(mDrawerList);
+            Log.e("MainActivity", "Fragment is already in backstack");
         }
+    }
+
+    public static boolean isFragmentInBackstack(final FragmentManager fragmentManager, final String fragmentTagName) {
+        for (int entry = 0; entry < fragmentManager.getBackStackEntryCount(); entry++) {
+            if (fragmentTagName.equals(fragmentManager.getBackStackEntryAt(entry).getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -516,15 +617,48 @@ public class MainPrivateActivity extends ActionBarActivity implements HomePrivat
     protected void onResume() {
         super.onResume();
         Log.v("", "resume is called");
+
+        final Firebase ref = new Firebase(Constants.BASE_URL);
+        final Firebase myStatusRef = ref.child("users").child(userId).child("blocked");
+        final AlertDialog blockMessage = new AlertDialog.Builder(MainPrivateActivity.this)
+                .setTitle("Error!")
+                .setMessage("Your account is blocked. Retry when an admin has unblocked it.")
+                .setCancelable(false)
+                .create();
+        myStatusRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot != null && dataSnapshot.getValue() != null &&
+                        dataSnapshot.getValue().equals(true)) {
+                    Toast.makeText(MainPrivateActivity.this, "User is blocked", Toast.LENGTH_SHORT).show();
+                    blockMessage.show();
+                } else {
+                    if (blockMessage.isShowing()) {
+                        blockMessage.dismiss();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
     }
 
     @Override
     public void onBackPressed() {
 
         final NavigationFragment myFragment = (NavigationFragment)getFragmentManager().findFragmentByTag("navFragment");
+        final AddEditLocationFragment locFragment = (AddEditLocationFragment)getFragmentManager().findFragmentByTag("editLocation");
+        final ProfileFragment profileFragment = (ProfileFragment)getFragmentManager().findFragmentByTag("profile");
+        final MyLocationsFragment myLocationsFragment = (MyLocationsFragment)getFragmentManager().findFragmentByTag("myLocation");
+        final ContactsFragment chatFragment = (ContactsFragment)getFragmentManager().findFragmentByTag("chat");
+        final NavigationHistoryListFragment navHistoryFragment = (NavigationHistoryListFragment)getFragmentManager().findFragmentByTag("navHistoryList");
+        final SettingsFragment settingsFragment = (SettingsFragment)getFragmentManager().findFragmentByTag("settings");
+        final AboutFragment aboutFragment = (AboutFragment)getFragmentManager().findFragmentByTag("about");
         if (myFragment!=null && myFragment.isVisible()) {
             // add your code here
-            Toast.makeText(getApplicationContext(), "show pop over", Toast.LENGTH_LONG).show();
             DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -548,6 +682,48 @@ public class MainPrivateActivity extends ActionBarActivity implements HomePrivat
             builder.setTitle("Confirm").setMessage("Are you sure? Current Navigation will be stopped").setPositiveButton("Yes", dialogClickListener)
                     .setNegativeButton("No", dialogClickListener).show();
         }
+       else if (locFragment!=null && locFragment.isVisible()) {
+            // add your code here
+            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    switch (which){
+                        case DialogInterface.BUTTON_POSITIVE:
+                            //Yes button clicked
+                            /**Implement Fragment Method**/
+                            getFragmentManager().popBackStack();
+
+                            break;
+
+                        case DialogInterface.BUTTON_NEGATIVE:
+                            //No button clicked
+                            break;
+                    }
+                }
+            };
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainPrivateActivity.this);
+            builder.setTitle("Warning").setMessage("Are you sure you want to go back? All unsaved changes to location will be removed.").setPositiveButton("Yes", dialogClickListener)
+                    .setNegativeButton("No", dialogClickListener).show();
+        }
+        else if(profileFragment!=null&&profileFragment.isVisible()){
+            clearBackStack();
+        }
+        else if(myLocationsFragment!=null&&myLocationsFragment.isVisible()){
+            clearBackStack();
+        }
+        else if(chatFragment!=null&&chatFragment.isVisible()){
+            clearBackStack();
+        }
+        else if(navHistoryFragment!=null&&navHistoryFragment.isVisible()){
+            clearBackStack();
+        }
+        else if(aboutFragment!=null&&aboutFragment.isVisible()){
+            clearBackStack();
+        }
+        else if(settingsFragment!=null&&settingsFragment.isVisible()){
+            clearBackStack();
+        }
         else
         {
             if (getFragmentManager().getBackStackEntryCount() > 0) {
@@ -558,6 +734,13 @@ public class MainPrivateActivity extends ActionBarActivity implements HomePrivat
         }
 
 
+    }
+
+    private void clearBackStack() {
+        final FragmentManager fragmentManager = getFragmentManager();
+        while (fragmentManager.getBackStackEntryCount() != 0) {
+            fragmentManager.popBackStackImmediate();
+        }
     }
 
     @Override

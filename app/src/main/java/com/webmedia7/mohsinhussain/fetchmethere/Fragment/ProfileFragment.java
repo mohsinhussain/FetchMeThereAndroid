@@ -7,7 +7,10 @@ import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -25,8 +28,11 @@ import android.widget.Toast;
 
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.Constants;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.RoundedImageView;
+import com.webmedia7.mohsinhussain.fetchmethere.FetchMeThere;
 import com.webmedia7.mohsinhussain.fetchmethere.R;
 
 import java.io.ByteArrayOutputStream;
@@ -46,7 +52,7 @@ public class ProfileFragment extends Fragment {
 
     ImageView headerImageView;
     RoundedImageView profileImageView;
-    TextView headerTextView, profileImageTextView;
+    TextView headerTextView, profileImageTextView, mobileNumberTextView;
     EditText firstNameEditText, lastNameEditText, emailEditText;
     Button saveProfileButton;
     LinearLayout uploadPictureLayout;
@@ -60,6 +66,7 @@ public class ProfileFragment extends Fragment {
     private String firstNameString = "";
     private String lastNameString = "";
     private String userId = "";
+    private String mobileNumberString = "";
     String profileImageFile = "";
     ProgressDialog ringProgressDialog;
     int REQUEST_CAMERA = 999;
@@ -76,6 +83,7 @@ public class ProfileFragment extends Fragment {
         profileImageView = (RoundedImageView) rootView.findViewById(R.id.profile_image_view);
         headerTextView = (TextView) rootView.findViewById(R.id.header_text_view);
         profileImageTextView = (TextView) rootView.findViewById(R.id.button_text_view);
+        mobileNumberTextView = (TextView) rootView.findViewById(R.id.mobile_number_text_view);
         firstNameEditText = (EditText) rootView.findViewById(R.id.first_name_edit_text);
         lastNameEditText = (EditText) rootView.findViewById(R.id.last_name_edit_text);
         emailEditText = (EditText) rootView.findViewById(R.id.email_edit_text);
@@ -88,6 +96,7 @@ public class ProfileFragment extends Fragment {
         emailString = preferenceSettings.getString("email", null);
         firstNameString = preferenceSettings.getString("firstName", null);
         lastNameString = preferenceSettings.getString("lastName", null);
+        mobileNumberString = preferenceSettings.getString("mobileNumber", null);
         userId = preferenceSettings.getString("userId", null);
 
 
@@ -97,6 +106,26 @@ public class ProfileFragment extends Fragment {
         saveProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if(firstNameEditText.getText().toString().equalsIgnoreCase("")){
+                    Toast.makeText(getActivity(), "Please provide first name!", Toast.LENGTH_LONG).show();
+                    firstNameEditText.setHintTextColor(Color.parseColor("red"));
+                    firstNameEditText.requestFocus();
+                    return;
+                }
+                else if(lastNameEditText.getText().toString().equalsIgnoreCase("")){
+                    Toast.makeText(getActivity(), "Please provide last name!", Toast.LENGTH_LONG).show();
+                    lastNameEditText.setHintTextColor(Color.parseColor("red"));
+                    lastNameEditText.requestFocus();
+                    return;
+                }
+//                else if(countrycodeString.equalsIgnoreCase("")) {
+//                    Toast.makeText(getApplicationContext(), "Please provide country code!", Toast.LENGTH_LONG).show();
+////                    countryCodeSpinner.setHighlightColor(Color.parseColor("red"));
+//                    countryCodeSpinner.requestFocus();
+//                    return;
+//                }
+
                 preferenceSettings = getActivity().getSharedPreferences(Constants.MY_PREFS_NAME, getActivity().MODE_PRIVATE);
                 preferenceEditor = preferenceSettings.edit();
 //                preferenceEditor.putString("userId", authData.getUid());
@@ -119,7 +148,7 @@ public class ProfileFragment extends Fragment {
 
                 Map<String, Object> map = new HashMap<String, Object>();
                 if(!emailEditText.getText().toString().equalsIgnoreCase("")){
-                    map.put("email", emailString);
+                    map.put("email", emailEditText.getText().toString());
                 }
                 map.put("displayName", firstNameEditText.getText().toString());
                 map.put("firstName", firstNameEditText.getText().toString());
@@ -128,7 +157,7 @@ public class ProfileFragment extends Fragment {
                 {
                     map.put("profileImageString", profileImageString);
                 }
-                postRef.setValue(map, new Firebase.CompletionListener() {
+                postRef.updateChildren(map, new Firebase.CompletionListener() {
                     @Override
                     public void onComplete(FirebaseError firebaseError, Firebase firebase) {
                         ringProgressDialog.dismiss();
@@ -159,10 +188,11 @@ public class ProfileFragment extends Fragment {
     }
 
     public void setLayout(){
-        headerTextView.setText(firstNameString + lastNameString);
+        headerTextView.setText(firstNameString +" "+ lastNameString);
         firstNameEditText.setText(firstNameString);
         lastNameEditText.setText(lastNameString);
         emailEditText.setText(emailString);
+        mobileNumberTextView.setText(mobileNumberString);
         if(!profileImageString.equalsIgnoreCase("")){
             profileImageTextView.setText("Update Profile Picture");
             headerImageView.setVisibility(View.GONE);
@@ -171,6 +201,13 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        Tracker t = FetchMeThere.getInstance().tracker;
+        t.setScreenName("Profile");
+        t.send(new HitBuilders.ScreenViewBuilder().build());
+    }
 
     private void selectImage() {
         final CharSequence[] items = { "Take Photo", "Choose from Library",
@@ -242,6 +279,54 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    public String getAbsolutePath(Uri uri) {
+        System.out.println("URI: " + uri.getAuthority());
+
+        if (uri.getAuthority().contains("media")){
+            String[] projection = { MediaStore.MediaColumns.DATA };
+            String[] column = { MediaStore.Images.Media.DATA };
+            String[] col = {android.provider.MediaStore.Images.ImageColumns.DATA};
+            @SuppressWarnings("deprecation")
+            Cursor cursor = getActivity().getContentResolver().query(uri, projection,
+                    null, null, null);
+            if (cursor != null) {
+                int column_index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+                cursor.moveToFirst();
+                return cursor.getString(column_index);
+            } else
+                return null;
+        }
+        else{
+            System.out.println("Google Drive");
+            return null;
+        }
+    }
+
+    public Bitmap decodeFile(String path) {
+        try {
+            // Decode image size
+            BitmapFactory.Options o = new BitmapFactory.Options();
+            o.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(path, o);
+            // The new size we want to scale to
+            final int REQUIRED_SIZE = 70;
+
+            // Find the correct scale value. It should be the power of 2.
+            int scale = 1;
+            while (o.outWidth / scale / 2 >= REQUIRED_SIZE && o.outHeight / scale / 2 >= REQUIRED_SIZE)
+                scale *= 2;
+
+            // Decode with inSampleSize
+            BitmapFactory.Options o2 = new BitmapFactory.Options();
+            o2.inSampleSize = scale;
+            return BitmapFactory.decodeFile(path, o2);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -252,9 +337,20 @@ public class ProfileFragment extends Fragment {
                 performCrop(picUri);
 
             } else if (requestCode == SELECT_FILE) {
-                Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
-                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                thumbnail.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
+                Bitmap thumbnail  = null;
+                if(data.hasExtra("data")){
+                    thumbnail = (Bitmap) data.getExtras().get("data");
+                    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                    thumbnail.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
+                }
+                else{
+                    String selectedImagePath = getAbsolutePath(data.getData());
+                    if(selectedImagePath==null){
+                        Toast.makeText(getActivity(), "Cannot Use this picture", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    thumbnail = (Bitmap)decodeFile(selectedImagePath);
+                }
                 headerImageView.setVisibility(View.GONE);
                 profileImageView.setVisibility(View.VISIBLE);
                 profileImageView.setImageBitmap(thumbnail);
@@ -265,7 +361,7 @@ public class ProfileFragment extends Fragment {
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                 thumbnail.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
 
-                File destination = new File(Environment.getExternalStorageDirectory(),
+                File destination = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
                         System.currentTimeMillis() + ".jpg");
 
                 FileOutputStream fo;

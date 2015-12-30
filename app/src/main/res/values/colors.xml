@@ -4,5 +4,6 @@
     <color name = "white_overlay">#66FFFFFF</color>
     <color name="yellow_button_bg">#FFEDE02D</color>
     <color name="black_text">#FF000000</color>
+    <color name="friend_row">#66F1EA46</color>
 
 </resources>

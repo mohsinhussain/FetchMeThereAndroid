@@ -12,8 +12,11 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.webmedia7.mohsinhussain.fetchmethere.Adapters.NavHistoryAdapter;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.Constants;
+import com.webmedia7.mohsinhussain.fetchmethere.FetchMeThere;
 import com.webmedia7.mohsinhussain.fetchmethere.Model.NavigationHistory;
 import com.webmedia7.mohsinhussain.fetchmethere.R;
 
@@ -57,6 +60,10 @@ public class NavigationHistoryListFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
+        Tracker t = FetchMeThere.getInstance().tracker;
+        t.setScreenName("Navigation History List");
+        t.send(new HitBuilders.ScreenViewBuilder().build());
+
         // Get a reference to our posts
         final Firebase ref = new Firebase(Constants.BASE_URL);
         Firebase postRef = ref.child("users").child(userId).child("navigationHistory");
@@ -74,6 +81,7 @@ public class NavigationHistoryListFragment extends Fragment {
                     navHistory.setId(child.getKey());
                     System.out.println("KEY: " + child.getKey());
                     System.out.println("VALUE: " + child.getValue());
+                    System.out.println("Child Count: " + child.getChildrenCount());
                     for (DataSnapshot mChild : child.getChildren()) {
                         if (mChild.getKey().equalsIgnoreCase("action")) {
                             navHistory.setAction(mChild.getValue().toString());

@@ -20,8 +20,11 @@ import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.webmedia7.mohsinhussain.fetchmethere.Adapters.ChatAdapter;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.Constants;
+import com.webmedia7.mohsinhussain.fetchmethere.FetchMeThere;
 import com.webmedia7.mohsinhussain.fetchmethere.Model.Chat;
 import com.webmedia7.mohsinhussain.fetchmethere.R;
 
@@ -125,9 +128,12 @@ public class ChatFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        Tracker t = FetchMeThere.getInstance().tracker;
+        t.setScreenName("Chat");
+        t.send(new HitBuilders.ScreenViewBuilder().build());
         chatArrayList.clear();
-        ringProgressDialog = ProgressDialog.show(getActivity(), "Please wait ...", "Loading Chat History...", true);
-        ringProgressDialog.setCancelable(true);
+//        ringProgressDialog = ProgressDialog.show(getActivity(), "Please wait ...", "Loading Chat History...", true);
+//        ringProgressDialog.setCancelable(true);
 
         // Get a reference to our posts
         final Firebase ref = new Firebase(Constants.BASE_URL);
@@ -154,7 +160,7 @@ public class ChatFragment extends Fragment {
 
                 chatArrayList.add(chat);
 
-                ringProgressDialog.dismiss();
+//                ringProgressDialog.dismiss();
 
                 mAdapter.mHighlightedPositions = new boolean[chatArrayList.size()];
                 mAdapter.notifyDataSetChanged();

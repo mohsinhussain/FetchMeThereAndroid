@@ -34,7 +34,8 @@ public class NavHistoryAdapter extends BaseAdapter implements View.OnClickListen
     NavigationHistory tempValues = null;
     int i = 0;
     public boolean[] mHighlightedPositions;
-
+    private static final int ITEM_VIEW_TYPE_MINE = 0;
+    private static final int ITEM_VIEW_TYPE_FRIEND = 1;
 
     /*************  CustomAdapter Constructor *****************/
     public NavHistoryAdapter(Activity a, ArrayList<NavigationHistory> d) {
@@ -60,13 +61,24 @@ public class NavHistoryAdapter extends BaseAdapter implements View.OnClickListen
     }
 
     @Override
-    public Object getItem(int position) {
-        return position;
+    public NavigationHistory getItem(int position) {
+        return data.get(position);
     }
 
     @Override
     public long getItemId(int position) {
         return position;
+    }
+
+    /** THIS SOLVED SCROLLING ISSUE WITH FALSE VALUES **/
+    @Override
+    public int getItemViewType(int position) {
+        return this.getItem(position).getFriendProfileImageString().equalsIgnoreCase("") ? ITEM_VIEW_TYPE_FRIEND : ITEM_VIEW_TYPE_MINE;
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return 2;
     }
 
 
@@ -146,8 +158,8 @@ public class NavHistoryAdapter extends BaseAdapter implements View.OnClickListen
                 holder.optionLayout.setVisibility(View.GONE);
             }
 
-            Constants.setImageViewFromString(tempValues.getFriendProfileImageString(), holder.profileImageView);
-
+//            Constants.setImageViewFromString(tempValues.getFriendProfileImageString(), holder.profileImageView);
+            Constants.setImageViewFromString(tempValues.getFriendProfileImageString().equalsIgnoreCase("") ? "" : tempValues.getFriendProfileImageString(), holder.profileImageView);
         }
 
 

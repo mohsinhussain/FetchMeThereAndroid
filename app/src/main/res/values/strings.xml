@@ -24,7 +24,18 @@
     <string name="drawer_open">Slider Menu Opened</string>
     <string name="drawer_close">Slider Menu Closed</string>
 
+    <string name="gcm_send_message">Token retrieved and sent to server! You can now use gcmsender to
+        send downstream messages to this app.</string>
+    <string name="registering_message">Generating InstanceID token...</string>
+    <string name="token_error_message">An error occurred while either fetching the InstanceID token,
+        sending the fetched token to the server or subscribing to the PubSub topic. Please try
+        running the sample again.</string>
 
+    <string name="what_value">FetchMeThere is an early stage technology start-up initially founded in Kenya and based in Dubai. We are all about helping people to find each other and to get to where they need to be.</string>
+
+    <string name="why_value">We want to build a better way for people who already know each other to find each other and to locate the businesses they need. We see a particular need for this in parts of the world where street names and addresses are generally not used. We also believe that soon nearly everyone in the world will have a smartphone. </string>
+    <string name="who_value">FetchMeThere is founded by a lover of people and food who dabbles in technology.</string>
+    <string name="about_value">FetchMeThere is a cross-platform mobile location app which allows you to be located easily by your friends and enables you to find your friends (or business locations, if needed). FetchMeThere is availabile on Android (Google) and IOS (Apple) smart phones.</string>
 
 
 

@@ -57,7 +57,7 @@ public class GalleryImageAdapter extends BaseAdapter {
     public int getCount() {
 //        if(data.size()<=0)
 //            return 1;
-        return data.size()+1;
+        return data.size();
     }
 
     @Override
@@ -100,10 +100,10 @@ public class GalleryImageAdapter extends BaseAdapter {
             holder=(ViewHolder)vi.getTag();
         }
 
-        if(position==data.size()){
-            holder.imageView.setImageDrawable(activity.getResources().getDrawable(R.drawable.camera_bg));
-        }
-        else{
+//        if(position==data.size()){
+//            holder.imageView.setImageDrawable(activity.getResources().getDrawable(R.drawable.camera_bg));
+//        }
+//        else{
             /****************** Get Each Model Object From Array List *******************/
             tempValues = null;
             tempValues = (String) data.get(position);
@@ -115,7 +115,7 @@ public class GalleryImageAdapter extends BaseAdapter {
                 holder.imageView.setImageBitmap(bitmap);
             }
 
-        }
+//        }
 
 
 

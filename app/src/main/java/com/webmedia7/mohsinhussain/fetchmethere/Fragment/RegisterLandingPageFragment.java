@@ -3,7 +3,6 @@ package com.webmedia7.mohsinhussain.fetchmethere.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +11,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.webmedia7.mohsinhussain.fetchmethere.Activities.ChooseUserActivity;
+import com.webmedia7.mohsinhussain.fetchmethere.Activities.RegisterActivity;
+import com.webmedia7.mohsinhussain.fetchmethere.Classes.Constants;
 import com.webmedia7.mohsinhussain.fetchmethere.R;
 
 /**
@@ -39,6 +39,7 @@ public class RegisterLandingPageFragment extends Fragment {
 
     private RelativeLayout mainLayout;
     private TextView descriptionTextView;
+    private TextView headerTextView;
     private ImageView firstPagingImage;
     private ImageView secondPagingImage;
     private ImageView thirdPagingImage;
@@ -53,6 +54,7 @@ public class RegisterLandingPageFragment extends Fragment {
                 R.layout.fragment_registration_landing_page, container, false);
 
         mainLayout = (RelativeLayout) rootView.findViewById(R.id.main_relative_layout);
+        headerTextView = (TextView) rootView.findViewById(R.id.head_text_view);
         descriptionTextView = (TextView) rootView.findViewById(R.id.desc_text_view);
         firstPagingImage = (ImageView) rootView.findViewById(R.id.first_paging_image_view);
         secondPagingImage = (ImageView) rootView.findViewById(R.id.seconf_paging_image_view);
@@ -69,6 +71,7 @@ public class RegisterLandingPageFragment extends Fragment {
         if(mPositon==0){
             mainLayout.setBackground(getResources().getDrawable(R.drawable.register_bg_first));
             descriptionTextView.setText(getResources().getString(R.string.reg_first_description));
+            headerTextView.setText(getResources().getString(R.string.reg_first_header));
             firstPagingImage.setBackground(getResources().getDrawable(R.drawable.paging_image_selected));
             secondPagingImage.setBackground(getResources().getDrawable(R.drawable.paging_image_normal));
             thirdPagingImage.setBackground(getResources().getDrawable(R.drawable.paging_image_normal));
@@ -76,6 +79,7 @@ public class RegisterLandingPageFragment extends Fragment {
         else if(mPositon==1){
             mainLayout.setBackground(getResources().getDrawable(R.drawable.register_bg_second));
             descriptionTextView.setText(getResources().getString(R.string.reg_sec_description));
+            headerTextView.setText(getResources().getString(R.string.reg_sec_header));
             firstPagingImage.setBackground(getResources().getDrawable(R.drawable.paging_image_normal));
             secondPagingImage.setBackground(getResources().getDrawable(R.drawable.paging_image_selected));
             thirdPagingImage.setBackground(getResources().getDrawable(R.drawable.paging_image_normal));
@@ -83,6 +87,7 @@ public class RegisterLandingPageFragment extends Fragment {
         else if(mPositon==2) {
             mainLayout.setBackground(getResources().getDrawable(R.drawable.registeration_bg_third));
             descriptionTextView.setText(getResources().getString(R.string.reg_third_description));
+            headerTextView.setText(getResources().getString(R.string.reg_third_header));
             firstPagingImage.setBackground(getResources().getDrawable(R.drawable.paging_image_normal));
             secondPagingImage.setBackground(getResources().getDrawable(R.drawable.paging_image_normal));
             thirdPagingImage.setBackground(getResources().getDrawable(R.drawable.paging_image_selected));
@@ -91,6 +96,7 @@ public class RegisterLandingPageFragment extends Fragment {
         else{
             mainLayout.setBackground(getResources().getDrawable(R.drawable.register_bg_first));
             descriptionTextView.setText(getResources().getString(R.string.reg_first_description));
+            headerTextView.setText(getResources().getString(R.string.reg_first_header));
             firstPagingImage.setBackground(getResources().getDrawable(R.drawable.paging_image_selected));
             secondPagingImage.setBackground(getResources().getDrawable(R.drawable.paging_image_normal));
             thirdPagingImage.setBackground(getResources().getDrawable(R.drawable.paging_image_normal));
@@ -99,10 +105,23 @@ public class RegisterLandingPageFragment extends Fragment {
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.v("ada", "goto next page");
-                Intent chooseUserActivtyIntent = new Intent(getActivity(), ChooseUserActivity.class);
-                chooseUserActivtyIntent.putExtra("isLogin", false);
-                startActivity(chooseUserActivtyIntent);
+                Intent registerIntent = new Intent(getActivity(), RegisterActivity.class);
+                String userType = "p";
+//                if(mPosition==0){
+//                    userType = "p";
+//                }
+//                else if(mPosition==1){
+//                    userType = "b";
+//                }
+//                else if(mPosition==2){
+//                    userType = "a";
+//                }
+                registerIntent.putExtra(Constants.CURRENT_USER_TYPE_STRING_INTENT,userType);
+                startActivity(registerIntent);
+//                Log.v("ada", "goto next page");
+//                Intent chooseUserActivtyIntent = new Intent(getActivity(), ChooseUserActivity.class);
+//                chooseUserActivtyIntent.putExtra("isLogin", false);
+//                startActivity(chooseUserActivtyIntent);
             }
         });
 
