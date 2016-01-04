@@ -78,11 +78,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/about_value"
+        android:linksClickable="true"
+        android:textColorLink="@color/wallet_highlighted_text_holo_dark"
         android:gravity="center"
         android:textSize="14sp"
         android:layout_marginBottom="15dp"
         />
 
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/copyright"
+        android:linksClickable="true"
+        android:textColorLink="@color/wallet_highlighted_text_holo_dark"
+        android:gravity="center"
+        android:textSize="12sp"
+        android:layout_marginBottom="15dp"
+        />
 
 </LinearLayout>
 </ScrollView>

@@ -154,7 +154,9 @@
         <activity
             android:name=".Activities.MobileVerificationActivity"
             android:screenOrientation="portrait"
-            android:label="@string/title_activity_mobile_verification" >
+            android:label="@string/title_activity_mobile_verification"
+            android:windowSoftInputMode="adjustResize"
+            >
         </activity>
         <activity
             android:name=".Activities.MainPrivateActivity"

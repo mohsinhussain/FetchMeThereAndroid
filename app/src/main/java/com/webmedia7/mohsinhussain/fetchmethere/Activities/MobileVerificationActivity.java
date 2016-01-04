@@ -25,8 +25,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.client.AuthData;
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.ConnectionResult;
@@ -195,6 +197,37 @@ public class MobileVerificationActivity extends Activity {
 
     }
 
+    private void updateProfile(){
+        //Fetch Latest Data of profile from server
+        final Firebase ref = new Firebase(Constants.BASE_URL);
+        Firebase getRef = ref.child("users").child(userId);
+        getRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                preferenceSettings = getSharedPreferences(Constants.MY_PREFS_NAME, MODE_PRIVATE);
+                preferenceEditor = preferenceSettings.edit();
+                for (DataSnapshot mChild : dataSnapshot.getChildren()) {
+                    Log.i("MobileVerif", "USER Key: " + mChild.getKey());
+                    Log.i("MobileVerif", "USER VALUE: " + mChild.getValue());
+                    if(mChild.getKey().equalsIgnoreCase("profileImageString")){
+                        preferenceEditor.putString("profileImageString", (String) mChild.getValue());
+                    }
+
+                    if(mChild.getKey().equalsIgnoreCase("email")){
+                        preferenceEditor.putString("email", (String) mChild.getValue());
+                    }
+                }
+                preferenceEditor.commit();
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+    }
+
     private void initUser(){
 
 
@@ -301,7 +334,10 @@ public class MobileVerificationActivity extends Activity {
                 map.put("lastName", lastNameString);
                 map.put("userId", authData.getUid());
                 map.put("mobileNumber", completeMobileNumber);
-                map.put("profileImageString", profileImageString);
+                if(!profileImageString.equalsIgnoreCase("")){
+                    map.put("profileImageString", profileImageString);
+                }
+
 //                map.put("token", finalToken);
                 if(selectedUserString.equalsIgnoreCase("p")){
                    map.put("privateRegistered", "true");
@@ -329,15 +365,19 @@ public class MobileVerificationActivity extends Activity {
                 preferenceEditor.putString("displayName", firstNameString);
                 preferenceEditor.putString("mobileNumber", completeMobileNumber);
                 preferenceEditor.putString("selectedUserString", selectedUserString);
-                preferenceEditor.putString("profileImageString", profileImageString);
+                if(!profileImageString.equalsIgnoreCase("")){
+                    preferenceEditor.putString("profileImageString", profileImageString);
+                }
+
                 preferenceEditor.putString("unit", "kms");
                 preferenceEditor.putString("voice", "on");
 //                preferenceEditor.putString("token", finalToken);
-                preferenceEditor.putString("profileImageString", profileImageString);
                 preferenceEditor.commit();
                 ringProgressDialog.dismiss();
 
                 //Initialising User - Generate GCM Token
+
+                updateProfile();
 
                 if (checkPlayServices()) {
                     // Start IntentService to register this application with GCM.

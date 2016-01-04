@@ -33,9 +33,15 @@
 
     <string name="what_value">FetchMeThere is an early stage technology start-up initially founded in Kenya and based in Dubai. We are all about helping people to find each other and to get to where they need to be.</string>
 
-    <string name="why_value">We want to build a better way for people who already know each other to find each other and to locate the businesses they need. We see a particular need for this in parts of the world where street names and addresses are generally not used. We also believe that soon nearly everyone in the world will have a smartphone. </string>
+    <!--<string name="why_value">We want to build a better way for people who already know each other to find each other and to locate the businesses they need. We see a particular need for this in parts of the world where street names and addresses are generally not used. We also believe that soon nearly everyone in the world will have a smartphone. </string>-->
+    <string name="why_value">In 70% of the World there are no accurate street names or house numbers.</string>
+    <string name="copyright">Copyright FetchMeThere 2016</string>
     <string name="who_value">FetchMeThere is founded by a lover of people and food who dabbles in technology.</string>
-    <string name="about_value">FetchMeThere is a cross-platform mobile location app which allows you to be located easily by your friends and enables you to find your friends (or business locations, if needed). FetchMeThere is availabile on Android (Google) and IOS (Apple) smart phones.</string>
+    <string name="about_value">
+        Fetch Me There is an application with a submitted pending patent which will run on Android and iOS and this Worldwide. It consists of a free application which allows users to be voice guided by their phones to a location which is sent by a second user\'s phone which also runs the app; this can happen even in places where there are no street names or house numbers.
+        \nBusinesses on the other hand will be visited by our agents who explain all the advantages and benefits of having a yearly subscription. Businesses will be listed in our GPS directory with a revolutionary search engine algorithm.
+        \nFetch Me There application is linked to a Multilevel Marketing Program which gives agents a very lucrative business opportunity by selling this application as well as future application which are already being planned today. Commission plan details are found in the agent page on our website www.fetchmethere.com.
+    </string>
 
 
 

@@ -20,7 +20,7 @@
         android:id="@+id/message_text_view"
         android:text="TITLE"
         android:layout_margin="5dp"
-        android:textSize="14sp"
+        android:textSize="16sp"
         android:gravity="left"
         android:maxLines="5"
         android:ellipsize="end"

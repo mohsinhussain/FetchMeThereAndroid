@@ -449,8 +449,8 @@ public class AddEditLocationFragment extends Fragment {
                     intent.putExtra("crop", "true");
                     intent.putExtra("aspectX", 0);
                     intent.putExtra("aspectY", 0);
-                    intent.putExtra("outputX", 200);
-                    intent.putExtra("outputY", 200);
+                    intent.putExtra("outputX", 500);
+                    intent.putExtra("outputY", 500);
 
                     try {
 
@@ -481,8 +481,8 @@ public class AddEditLocationFragment extends Fragment {
             cropIntent.putExtra("aspectX", 1);
             cropIntent.putExtra("aspectY", 1);
             //indicate output X and Y
-            cropIntent.putExtra("outputX", 256);
-            cropIntent.putExtra("outputY", 256);
+            cropIntent.putExtra("outputX", 500);
+            cropIntent.putExtra("outputY", 500);
             //retrieve data on return
             cropIntent.putExtra("return-data", true);
             //start the activity - we handle returning in onActivityResult

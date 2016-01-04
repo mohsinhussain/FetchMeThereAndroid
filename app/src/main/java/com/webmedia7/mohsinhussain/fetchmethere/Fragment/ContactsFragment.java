@@ -506,7 +506,7 @@ public class ContactsFragment extends Fragment {
             Firebase postRef = ref.child("users").child(userId).child("friends");
 
 
-            postRef.addValueEventListener(new ValueEventListener() {
+            postRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
                     System.out.println(snapshot);
