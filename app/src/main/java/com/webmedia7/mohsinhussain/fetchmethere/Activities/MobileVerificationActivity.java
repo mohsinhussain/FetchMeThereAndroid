@@ -112,15 +112,15 @@ public class MobileVerificationActivity extends Activity {
         verifyAccountButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                enteredVerificationCode = firstInput.getText().toString() + secondInput.getText().toString() + thirdInput.getText().toString();
-                if (verificationCode.equalsIgnoreCase(enteredVerificationCode)) {
+//                enteredVerificationCode = firstInput.getText().toString() + secondInput.getText().toString() + thirdInput.getText().toString();
+//                if (verificationCode.equalsIgnoreCase(enteredVerificationCode)) {
                     //Do the registeration here!
 
                     registerUser();
 
-                } else {
-                    Toast.makeText(getApplicationContext(), "Verification Code Is Invalid!", Toast.LENGTH_LONG).show();
-                }
+//                } else {
+//                    Toast.makeText(getApplicationContext(), "Verification Code Is Invalid!", Toast.LENGTH_LONG).show();
+//                }
 
             }
         });

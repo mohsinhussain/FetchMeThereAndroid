@@ -26,6 +26,7 @@ import android.widget.Toast;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 import com.webmedia7.mohsinhussain.fetchmethere.Adapters.NavDrawerListAdapter;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.Constants;
@@ -155,6 +156,7 @@ public class MainPrivateActivity extends ActionBarActivity implements HomePrivat
 
         // enabling action bar app icon and behaving it as toggle button
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.nav_main_menu_bg);
         getSupportActionBar().setHomeButtonEnabled(true);
 
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
@@ -201,6 +203,14 @@ public class MainPrivateActivity extends ActionBarActivity implements HomePrivat
         final Firebase ref = new Firebase(Constants.BASE_URL);
         final Firebase myStatusRef = ref.child("users").child(userId).child("status");
         myStatusRef.setValue("offline");
+    }
+
+
+    public void onDeleteNavigationHistory(NavigationHistory navHistory){
+        System.out.println("NavId: "+navHistory.getId());
+        final Firebase ref = new Firebase(Constants.BASE_URL);
+        final Firebase navRef = ref.child("users").child(userId).child("navigationHistory").child(navHistory.getId());
+        navRef.setValue(null);
     }
 
     public void onLoadNavigationHistoryDetail(NavigationHistory navHistory){

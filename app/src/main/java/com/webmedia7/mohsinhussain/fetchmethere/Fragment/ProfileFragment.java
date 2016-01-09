@@ -213,43 +213,47 @@ public class ProfileFragment extends Fragment {
         final CharSequence[] items = { "Take Photo", "Choose from Library",
                 "Cancel" };
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Add Photo!");
-        builder.setItems(items, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int item) {
-                if (items[item].equals("Take Photo")) {
-                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    intent.putExtra("android.intent.extras.CAMERA_FACING", 1);
-                    startActivityForResult(intent, REQUEST_CAMERA);
-                } else if (items[item].equals("Choose from Library")) {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intent.putExtra("android.intent.extras.CAMERA_FACING", 1);
+        startActivityForResult(intent, REQUEST_CAMERA);
 
-                    Intent intent = new Intent();
-                    // call android default gallery
-                    intent.setType("image/*");
-                    intent.setAction(Intent.ACTION_GET_CONTENT);
-                    // ******** code for crop image
-                    intent.putExtra("crop", "true");
-                    intent.putExtra("aspectX", 0);
-                    intent.putExtra("aspectY", 0);
-                    intent.putExtra("outputX", 200);
-                    intent.putExtra("outputY", 200);
-
-                    try {
-
-                        intent.putExtra("return-data", true);
-                        startActivityForResult(Intent.createChooser(intent,
-                                "Complete action using"), SELECT_FILE);
-
-                    } catch (ActivityNotFoundException e) {
-                        // Do nothing for now
-                    }
-                } else if (items[item].equals("Cancel")) {
-                    dialog.dismiss();
-                }
-            }
-        });
-        builder.show();
+//        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+//        builder.setTitle("Add Photo!");
+//        builder.setItems(items, new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int item) {
+//                if (items[item].equals("Take Photo")) {
+//                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//                    intent.putExtra("android.intent.extras.CAMERA_FACING", 1);
+//                    startActivityForResult(intent, REQUEST_CAMERA);
+//                } else if (items[item].equals("Choose from Library")) {
+//
+//                    Intent intent = new Intent();
+//                    // call android default gallery
+//                    intent.setType("image/*");
+//                    intent.setAction(Intent.ACTION_GET_CONTENT);
+//                    // ******** code for crop image
+//                    intent.putExtra("crop", "true");
+//                    intent.putExtra("aspectX", 0);
+//                    intent.putExtra("aspectY", 0);
+//                    intent.putExtra("outputX", 200);
+//                    intent.putExtra("outputY", 200);
+//
+//                    try {
+//
+//                        intent.putExtra("return-data", true);
+//                        startActivityForResult(Intent.createChooser(intent,
+//                                "Complete action using"), SELECT_FILE);
+//
+//                    } catch (ActivityNotFoundException e) {
+//                        // Do nothing for now
+//                    }
+//                } else if (items[item].equals("Cancel")) {
+//                    dialog.dismiss();
+//                }
+//            }
+//        });
+//        builder.show();
     }
 
     private void performCrop(Uri picUri){

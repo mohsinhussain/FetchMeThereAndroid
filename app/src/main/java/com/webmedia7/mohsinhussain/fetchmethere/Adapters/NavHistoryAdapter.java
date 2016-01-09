@@ -91,7 +91,7 @@ public class NavHistoryAdapter extends BaseAdapter implements View.OnClickListen
         public RoundedImageView profileImageView;
         public ImageView iconImageView;
         public LinearLayout optionLayout;
-
+        public LinearLayout deleteLayout;
     }
 
 
@@ -114,6 +114,7 @@ public class NavHistoryAdapter extends BaseAdapter implements View.OnClickListen
             holder.iconImageView = (ImageView) vi.findViewById(R.id.icon_image_view);
             holder.profileImageView = (RoundedImageView) vi.findViewById(R.id.profile_image_view);
             holder.optionLayout = (LinearLayout) vi.findViewById(R.id.option_button_layout);
+            holder.deleteLayout = (LinearLayout) vi.findViewById(R.id.del_button_layout);
 
             /************  Set holder with LayoutInflater ************/
             vi.setTag(holder);
@@ -147,6 +148,7 @@ public class NavHistoryAdapter extends BaseAdapter implements View.OnClickListen
 //            holder.iconImageView.setBackground(activity.getResources().getDrawable(tempValues.getIconImage()));
             holder.profileImageView.setTag(position);
             holder.optionLayout.setTag(position);
+            holder.deleteLayout.setTag(position);
 
 
             /***************** Set Item Click Listner for LayoutInflator for each row ******************/
@@ -154,8 +156,10 @@ public class NavHistoryAdapter extends BaseAdapter implements View.OnClickListen
 
             if(mHighlightedPositions[position]) {
                 holder.optionLayout.setVisibility(View.VISIBLE);
+                holder.deleteLayout.setVisibility(View.VISIBLE);
             }else {
                 holder.optionLayout.setVisibility(View.GONE);
+                holder.deleteLayout.setVisibility(View.GONE);
             }
 
 //            Constants.setImageViewFromString(tempValues.getFriendProfileImageString(), holder.profileImageView);
@@ -212,6 +216,7 @@ public class NavHistoryAdapter extends BaseAdapter implements View.OnClickListen
         public void onClick(View arg0) {
 
             LinearLayout optionButton = (LinearLayout)arg0.findViewById(R.id.option_button_layout);
+            LinearLayout deleteButton = (LinearLayout)arg0.findViewById(R.id.del_button_layout);
 
 //            if(mHighlightedPositions[mPosition]) {
 //                optionButton.setVisibility(View.INVISIBLE);
@@ -225,15 +230,27 @@ public class NavHistoryAdapter extends BaseAdapter implements View.OnClickListen
                 if(i==mPosition){
                     if(mHighlightedPositions[i]) {
                         optionButton.setVisibility(View.GONE);
+                        deleteButton.setVisibility(View.GONE);
                         mHighlightedPositions[i] = false;
                     }else {
                         optionButton.setVisibility(View.VISIBLE);
+                        deleteButton.setVisibility(View.VISIBLE);
                         optionButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                MainPrivateActivity act = (MainPrivateActivity) activity;
+                                NavigationHistory loca = data.get(mPosition);
+                                act.onLoadNavigationHistoryDetail(loca);
+
+
+                            }
+                        });
+                        deleteButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 MainPrivateActivity act = (MainPrivateActivity)activity;
                                 NavigationHistory loca = data.get(mPosition);
-                                act.onLoadNavigationHistoryDetail(loca);
+                                act.onDeleteNavigationHistory(loca);
 
                             }
                         });

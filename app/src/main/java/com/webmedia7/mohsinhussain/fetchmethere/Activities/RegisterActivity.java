@@ -151,110 +151,110 @@ public class RegisterActivity extends Activity {
                     return;
                 }
                 if (Constants.isNetworkAvailable(RegisterActivity.this)){
-                    Random rn = new Random();
-                    int max = 999999;
-                    int min = 100000;
-                    int verificationCode = rn.nextInt(max - min + 1) + min;
-
-                    final HttpClient httpclient = new DefaultHttpClient();
-
-                    final HttpPost httppost = new HttpPost(
-                            "https://api.twilio.com/2010-04-01/Accounts/"+Constants.ACCOUNT_SID+"/SMS/Messages");
-                    String base64EncodedCredentials = "Basic "
-                            + Base64.encodeToString(
-                            (Constants.ACCOUNT_SID + ":" + Constants.AUTH_TOKEN).getBytes(),
-                            Base64.NO_WRAP);
-
-                    httppost.setHeader("Authorization",
-                            base64EncodedCredentials);
-                    try {
-
-                        String countrycodeString = countryCodeButton.getText().toString().replace(" ", "");
-                        String completeMobileNumber = countrycodeString+mobileNumberString;
-
-                        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-                        nameValuePairs.add(new BasicNameValuePair("From",
-                                "+17158022875"));
-                        nameValuePairs.add(new BasicNameValuePair("To",
-                                completeMobileNumber));
-                        nameValuePairs.add(new BasicNameValuePair("Body",
-                                "FetchMeThere - Your code for App registration is "+verificationCode+". Please do not reply to this message."));
-                        nameValuePairs.add(new BasicNameValuePair("Format",
-                                "JSON"));
-
-                        httppost.setEntity(new UrlEncodedFormEntity(
-                                nameValuePairs));
-
-                        // Execute HTTP Post Request
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                HttpResponse response = null;
-                                try {
-                                    response = httpclient.execute(httppost);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                                if(response!=null){
-                                    HttpEntity entity = response.getEntity();
-                                    try {
-                                        String responseString = EntityUtils.toString(entity, "UTF-8");
-                                        System.out.println("responseString is: "
-                                                + responseString);
-
-                                        if (responseString.contains("<Status>400</Status>")){
-                                            if(responseString.contains("21608")){
-                                                runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        Toast.makeText(RegisterActivity.this,"Please Upgrade your account and purchase a twillio number to send message to unverified numbers.",Toast.LENGTH_LONG).show();
-                                                    }
-                                                });
-                                            }
-                                            else if(responseString.contains("21211")){
-
-                                                runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        Toast.makeText(RegisterActivity.this,"Given number is not a valid phone number",Toast.LENGTH_LONG).show();
-                                                    }
-                                                });
-
-                                            }
-                                            else if(responseString.contains("21408")){
-                                                runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        Toast.makeText(RegisterActivity.this,"Permission to send an SMS has not been enabled for the region indicated",Toast.LENGTH_LONG).show();
-                                                    }
-                                                });
-
-                                            }
-                                        }
-
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                else{
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Toast.makeText(RegisterActivity.this, "We cannot send you code. Please check your internet connection. Thanks", Toast.LENGTH_LONG).show();
-                                        }
-                                    });
-
-                                }
-
-
-
-                            }
-                        }).start();
-
-
-                    }  catch (IOException e) {
-
-                    }
+//                    Random rn = new Random();
+//                    int max = 999999;
+//                    int min = 100000;
+//                    int verificationCode = rn.nextInt(max - min + 1) + min;
+//
+//                    final HttpClient httpclient = new DefaultHttpClient();
+//
+//                    final HttpPost httppost = new HttpPost(
+//                            "https://api.twilio.com/2010-04-01/Accounts/"+Constants.ACCOUNT_SID+"/SMS/Messages");
+//                    String base64EncodedCredentials = "Basic "
+//                            + Base64.encodeToString(
+//                            (Constants.ACCOUNT_SID + ":" + Constants.AUTH_TOKEN).getBytes(),
+//                            Base64.NO_WRAP);
+//
+//                    httppost.setHeader("Authorization",
+//                            base64EncodedCredentials);
+//                    try {
+//
+//                        String countrycodeString = countryCodeButton.getText().toString().replace(" ", "");
+//                        String completeMobileNumber = countrycodeString+mobileNumberString;
+//
+//                        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+//                        nameValuePairs.add(new BasicNameValuePair("From",
+//                                "+17158022875"));
+//                        nameValuePairs.add(new BasicNameValuePair("To",
+//                                completeMobileNumber));
+//                        nameValuePairs.add(new BasicNameValuePair("Body",
+//                                "FetchMeThere - Your code for App registration is "+verificationCode+". Please do not reply to this message."));
+//                        nameValuePairs.add(new BasicNameValuePair("Format",
+//                                "JSON"));
+//
+//                        httppost.setEntity(new UrlEncodedFormEntity(
+//                                nameValuePairs));
+//
+//                        // Execute HTTP Post Request
+//                        new Thread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                HttpResponse response = null;
+//                                try {
+//                                    response = httpclient.execute(httppost);
+//                                } catch (IOException e) {
+//                                    e.printStackTrace();
+//                                }
+//                                if(response!=null){
+//                                    HttpEntity entity = response.getEntity();
+//                                    try {
+//                                        String responseString = EntityUtils.toString(entity, "UTF-8");
+//                                        System.out.println("responseString is: "
+//                                                + responseString);
+//
+//                                        if (responseString.contains("<Status>400</Status>")){
+//                                            if(responseString.contains("21608")){
+//                                                runOnUiThread(new Runnable() {
+//                                                    @Override
+//                                                    public void run() {
+//                                                        Toast.makeText(RegisterActivity.this,"Please Upgrade your account and purchase a twillio number to send message to unverified numbers.",Toast.LENGTH_LONG).show();
+//                                                    }
+//                                                });
+//                                            }
+//                                            else if(responseString.contains("21211")){
+//
+//                                                runOnUiThread(new Runnable() {
+//                                                    @Override
+//                                                    public void run() {
+//                                                        Toast.makeText(RegisterActivity.this,"Given number is not a valid phone number",Toast.LENGTH_LONG).show();
+//                                                    }
+//                                                });
+//
+//                                            }
+//                                            else if(responseString.contains("21408")){
+//                                                runOnUiThread(new Runnable() {
+//                                                    @Override
+//                                                    public void run() {
+//                                                        Toast.makeText(RegisterActivity.this,"Permission to send an SMS has not been enabled for the region indicated",Toast.LENGTH_LONG).show();
+//                                                    }
+//                                                });
+//
+//                                            }
+//                                        }
+//
+//                                    } catch (IOException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                }
+//                                else{
+//                                    runOnUiThread(new Runnable() {
+//                                        @Override
+//                                        public void run() {
+//                                            Toast.makeText(RegisterActivity.this, "We cannot send you code. Please check your internet connection. Thanks", Toast.LENGTH_LONG).show();
+//                                        }
+//                                    });
+//
+//                                }
+//
+//
+//
+//                            }
+//                        }).start();
+//
+//
+//                    }  catch (IOException e) {
+//
+//                    }
 
 
 
@@ -292,7 +292,7 @@ public class RegisterActivity extends Activity {
                     mobileVerificationIntent.putExtra(Constants.EMAIL_STRING_INTENT, emailString);
                     mobileVerificationIntent.putExtra(Constants.CURRENT_USER_TYPE_STRING_INTENT, selectedUserString);
                     mobileVerificationIntent.putExtra(Constants.PROFILE_IMAGE_STRING_INTENT, profileImageFile);
-                    mobileVerificationIntent.putExtra(Constants.VERIFICATION_CODE_STRING_INTENT, Integer.toString(verificationCode));
+//                    mobileVerificationIntent.putExtra(Constants.VERIFICATION_CODE_STRING_INTENT, Integer.toString(verificationCode));
                     startActivity(mobileVerificationIntent);
                 }
                 else{
@@ -394,43 +394,47 @@ public class RegisterActivity extends Activity {
         final CharSequence[] items = { "Take Photo", "Choose from Library",
                 "Cancel" };
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this);
-        builder.setTitle("Add Photo!");
-        builder.setItems(items, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int item) {
-                if (items[item].equals("Take Photo")) {
-                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    intent.putExtra("android.intent.extras.CAMERA_FACING", 1);
-                    startActivityForResult(intent, REQUEST_CAMERA);
-                } else if (items[item].equals("Choose from Library")) {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intent.putExtra("android.intent.extras.CAMERA_FACING", 1);
+        startActivityForResult(intent, REQUEST_CAMERA);
 
-                    Intent intent = new Intent();
-                    // call android default gallery
-                    intent.setType("image/*");
-                    intent.setAction(Intent.ACTION_GET_CONTENT);
-                    // ******** code for crop image
-                    intent.putExtra("crop", "true");
-                    intent.putExtra("aspectX", 0);
-                    intent.putExtra("aspectY", 0);
-                    intent.putExtra("outputX", 200);
-                    intent.putExtra("outputY", 200);
-
-                    try {
-
-                        intent.putExtra("return-data", true);
-                        startActivityForResult(Intent.createChooser(intent,
-                                "Complete action using"), SELECT_FILE);
-
-                    } catch (ActivityNotFoundException e) {
-                        // Do nothing for now
-                    }
-                } else if (items[item].equals("Cancel")) {
-                    dialog.dismiss();
-                }
-            }
-        });
-        builder.show();
+//        AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this);
+//        builder.setTitle("Add Photo!");
+//        builder.setItems(items, new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int item) {
+//                if (items[item].equals("Take Photo")) {
+//                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//                    intent.putExtra("android.intent.extras.CAMERA_FACING", 1);
+//                    startActivityForResult(intent, REQUEST_CAMERA);
+//                } else if (items[item].equals("Choose from Library")) {
+//
+//                    Intent intent = new Intent();
+//                    // call android default gallery
+//                    intent.setType("image/*");
+//                    intent.setAction(Intent.ACTION_GET_CONTENT);
+//                    // ******** code for crop image
+//                    intent.putExtra("crop", "true");
+//                    intent.putExtra("aspectX", 0);
+//                    intent.putExtra("aspectY", 0);
+//                    intent.putExtra("outputX", 200);
+//                    intent.putExtra("outputY", 200);
+//
+//                    try {
+//
+//                        intent.putExtra("return-data", true);
+//                        startActivityForResult(Intent.createChooser(intent,
+//                                "Complete action using"), SELECT_FILE);
+//
+//                    } catch (ActivityNotFoundException e) {
+//                        // Do nothing for now
+//                    }
+//                } else if (items[item].equals("Cancel")) {
+//                    dialog.dismiss();
+//                }
+//            }
+//        });
+//        builder.show();
     }
 
 
