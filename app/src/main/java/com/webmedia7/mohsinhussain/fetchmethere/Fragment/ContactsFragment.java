@@ -70,6 +70,7 @@ public class ContactsFragment extends Fragment {
     DatabaseHandler dbHandler;
     ContactsFragment contactsFragment;
     private ResponseReceiver receiver;
+    HashMap<String, String> tempContacts;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -130,7 +131,7 @@ public class ContactsFragment extends Fragment {
     }
 
     public void fetchContacts() {
-
+        tempContacts = new HashMap<String, String>();
         contactsArrayList.clear();
         dbHandler.removeAllContacts();
 
@@ -182,8 +183,6 @@ public class ContactsFragment extends Fragment {
                     Cursor phoneCursor = contentResolver.query(PhoneCONTENT_URI, null, Phone_CONTACT_ID + " = ?", new String[] { contact_id }, null);
 
                     while (phoneCursor.moveToNext()) {
-                        final Contacts contact = new Contacts();
-                        contact.setName(name);
                 System.out.println("Phone Number: "+phoneCursor.getString(phoneCursor.getColumnIndex(NUMBER)));
                         phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(NUMBER)).replace(" ", "");
                         phoneNumber.replace("-", "");
@@ -203,60 +202,28 @@ public class ContactsFragment extends Fragment {
                             phoneNumber = sb.toString();
                         }
 
-
-                        contact.setMobileNumber(phoneNumber);
-                        contact.setSortFriend("z");
-
-                        for (int i = 0; i<olf.size();i++){
-                            if(contact.getMobileNumber().equalsIgnoreCase(olf.get(i).getMobile())){
-//                                contact.setMobileNumber(olf.get(i).getMobile());
-                                contact.setUserId(olf.get(i).getUserId());
-                                contact.setFriend(true);
-                                contact.setHasApp(true);
-//                                contact.setName(olf.get(i).getName());
-                                contact.setProfileImageString(olf.get(i).getProfileImageString());
-                                contact.setSortFriend("a");
-                            }
+                        if(tempContacts.containsKey(phoneNumber)){
+                            System.out.println("Skip");
                         }
-//                        if(!contact.isFriend()){
-//                            final Firebase ref = new Firebase(Constants.BASE_URL);
-//                            Firebase postRef = ref.child("users");
-////                            Log.v("ada", "locale mobile number:"+contact.getMobileNumber());
-//                            Query queryRef = postRef.orderByChild("mobileNumber").equalTo(contact.getMobileNumber());
-//
-//                            queryRef.addListenerForSingleValueEvent(new ValueEventListener() {
-//                                @Override
-//                                public void onDataChange(DataSnapshot snapshot) {
-//                                    if (snapshot.getValue() == null) {
-//                                        contact.setHasApp(false);
-//                                    } else {
-//                                        for (DataSnapshot mChild : snapshot.getChildren()){
-//                                            contact.setUserId(mChild.getKey());
-//                                            Log.v("ContactsFragment", "Contact Key: "+mChild.getKey());
-//                                        }
-//                                        contact.setHasApp(true);
-//                                    }
-//
-//                                    dbHandler.addContact(contact);
-//                                    contactsArrayList.add(contact);
-//                                    mAdapter.mHighlightedPositions = new boolean[contactsArrayList.size()];
-//                                    mAdapter.notifyDataSetChanged();
-//                                }
-//
-//                                @Override
-//                                public void onCancelled(FirebaseError firebaseError) {
-//                                    System.out.println("The read failed: " + firebaseError.getMessage());
-//                                }
-//
-//
-//                            });
-//                        }
-//                        else{
+                        else{
+                            tempContacts.put(phoneNumber,phoneNumber);
+                            final Contacts contact = new Contacts();
+                            contact.setName(name);
+                            contact.setMobileNumber(phoneNumber);
+                            contact.setSortFriend("z");
+
+                            for (int i = 0; i<olf.size();i++){
+                                if(contact.getMobileNumber().equalsIgnoreCase(olf.get(i).getMobile())){
+                                    contact.setUserId(olf.get(i).getUserId());
+                                    contact.setFriend(true);
+                                    contact.setHasApp(true);
+                                    contact.setProfileImageString(olf.get(i).getProfileImageString());
+                                    contact.setSortFriend("a");
+                                }
+                            }
                             dbHandler.addContact(contact);
                             contactsArrayList.add(contact);
-//                        }
-
-
+                        }
                     }
 
                     phoneCursor.close();
@@ -364,7 +331,7 @@ public class ContactsFragment extends Fragment {
 //            ringProgressDialog.dismiss();
                                         Uri uri = Uri.parse("smsto:" + friendToBeAdded.getMobileNumber());
                                         Intent intent = new Intent(Intent.ACTION_SENDTO, uri);
-                                        intent.putExtra("sms_body", "Please download FetchMeThere Application from here \n http://fetchme1.com/");
+                                        intent.putExtra("sms_body", "Please download FetchMeThere Test Application version 1 from here \n https://drive.google.com/open?id=0BwQmopxHrU_rdVhrNURzOXk5SHM");
                                         startActivity(intent);
                                     } else {
                                         ringProgressDialog = ProgressDialog.show(getActivity(), "Please wait ...", "Adding Friend...", true);
