@@ -337,6 +337,9 @@ public class MobileVerificationActivity extends Activity {
                 if(!profileImageString.equalsIgnoreCase("")){
                     map.put("profileImageString", profileImageString);
                 }
+                else{
+                    map.put("profileImageString", "");
+                }
 
 //                map.put("token", finalToken);
                 if(selectedUserString.equalsIgnoreCase("p")){

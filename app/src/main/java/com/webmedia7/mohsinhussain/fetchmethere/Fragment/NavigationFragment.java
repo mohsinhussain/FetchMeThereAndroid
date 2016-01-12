@@ -13,6 +13,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
 import android.text.Html;
 import android.util.Log;
@@ -111,7 +112,8 @@ public class NavigationFragment extends Fragment implements LocationListener {
     ImageView maneuverImageView;
     private SharedPreferences preferenceSettings;
     private SharedPreferences.Editor preferenceEditor;
-
+    PowerManager pm;
+    PowerManager.WakeLock wl;
     private String unit = "";
     private String voice = "";
 
@@ -543,11 +545,15 @@ public class NavigationFragment extends Fragment implements LocationListener {
     public void onPause() {
 
         locationManager.removeUpdates(this);
+        wl.release();
         super.onPause();
     }
 
     @Override
     public void onResume() {
+        pm = (PowerManager) getActivity().getSystemService(Context.POWER_SERVICE);
+        wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "My Tag");
+        wl.acquire();
         mapView.onResume();
         Tracker t = FetchMeThere.getInstance().tracker;
         t.setScreenName("Navigation");

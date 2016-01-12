@@ -525,21 +525,33 @@ public class HomePrivateFragment extends Fragment{
                             @Override
                             public void onClick(View v) {
                                 hideNotification();
-                                final Firebase addFriendRef = ref.child("users").child(userId).child("friends");
-                                Map<String, Object> post1 = new HashMap<String, Object>();
-                                post1.put("userId", child.getKey());
-                                post1.put("mobile", finalMobileNumber);
-                                post1.put("name", finalName);
-                                post1.put("profileImageString", finalFriendProfileImageString);
-                                addFriendRef.push().setValue(post1);
+                                if(userId.equalsIgnoreCase(child.getKey())){
+                                    final Firebase addFriendRef = ref.child("users").child(userId).child("friends");
+                                    Map<String, Object> post1 = new HashMap<String, Object>();
+                                    post1.put("userId", child.getKey());
+                                    post1.put("mobile", finalMobileNumber);
+                                    post1.put("name", finalName);
+                                    post1.put("profileImageString", finalFriendProfileImageString);
+                                    addFriendRef.push().setValue(post1);
+                                }
+                                else{
+                                    final Firebase addFriendRef = ref.child("users").child(userId).child("friends");
+                                    Map<String, Object> post1 = new HashMap<String, Object>();
+                                    post1.put("userId", child.getKey());
+                                    post1.put("mobile", finalMobileNumber);
+                                    post1.put("name", finalName);
+                                    post1.put("profileImageString", finalFriendProfileImageString);
+                                    addFriendRef.push().setValue(post1);
 
-                                final Firebase addFriendtoMeRef = ref.child("users").child(child.getKey()).child("friends");
-                                Map<String, Object> post2 = new HashMap<String, Object>();
-                                post2.put("userId", userId);
-                                post2.put("mobile", myMobileNumber);
-                                post2.put("name", myDisplayName);
-                                post2.put("profileImageString", myProfileImageString);
-                                addFriendtoMeRef.push().setValue(post2);
+                                    final Firebase addFriendtoMeRef = ref.child("users").child(child.getKey()).child("friends");
+                                    Map<String, Object> post2 = new HashMap<String, Object>();
+                                    post2.put("userId", userId);
+                                    post2.put("mobile", myMobileNumber);
+                                    post2.put("name", myDisplayName);
+                                    post2.put("profileImageString", myProfileImageString);
+                                    addFriendtoMeRef.push().setValue(post2);
+                                }
+
 
                                 postRef.setValue(null);
 
