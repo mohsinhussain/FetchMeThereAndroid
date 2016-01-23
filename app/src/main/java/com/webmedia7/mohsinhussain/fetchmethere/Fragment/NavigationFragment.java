@@ -260,7 +260,7 @@ public class NavigationFragment extends Fragment implements LocationListener {
 
         setHasOptionsMenu(true);
 
-        initMap(savedInstanceState);
+
 
 
 
@@ -411,6 +411,8 @@ public class NavigationFragment extends Fragment implements LocationListener {
         }
 
 
+        initMap(savedInstanceState);
+
         destinationLatLang = new LatLng(Double.parseDouble(friendLat), Double.parseDouble(friendLang));
         BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.marker_bg);
         MarkerOptions markerOptions = new MarkerOptions().position(destinationLatLang)
@@ -499,12 +501,16 @@ public class NavigationFragment extends Fragment implements LocationListener {
         BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.marker_bg);
 
 
-        MarkerOptions a = new MarkerOptions()
-                .position(latLng).title("You are here")
-                .position(latLng)
-                .snippet(snippet)
-                .icon(icon);
-        currentMarker = map.addMarker(a);
+//        MarkerOptions a = new MarkerOptions()
+//                .position(latLng).title("You are here")
+//                .position(latLng)
+//                .snippet(snippet)
+//                .icon(icon);
+        currentMarker.setPosition(latLng);
+        currentMarker.setTitle("You are here");
+        currentMarker.setSnippet(snippet);
+        currentMarker.setIcon(icon);
+//        currentMarker = map.addMarker(a);
     }
 
 
@@ -521,11 +527,21 @@ public class NavigationFragment extends Fragment implements LocationListener {
         MapsInitializer.initialize(this.getActivity());
 
 //        m.setPosition(new LatLng(50,5));
+
+        BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.marker_bg);
+        currentMarker = map.addMarker(new MarkerOptions()
+                .position(new LatLng(currentLat, currentLang))
+                .title("You are here")
+                .icon(icon));
+
+
+//                MarkerOptions a = new MarkerOptions()
+//                .position(new LatLng(currentLat, currentLang)).title("You are here")
+//                .icon(icon);
 //
-//        currentMarker = new MarkerOptions().position(latLng)
+//        currentMarker = new Marker(this);
+//        currentMarker = new MarkerOptions().position(new LatLng(currentLat, currentLang))
 //                .title("You are here")
-//                .position(latLng)
-//                .snippet(snippet)
 //                .icon(icon);
 //
 //        map.addMarker(currentMarker);

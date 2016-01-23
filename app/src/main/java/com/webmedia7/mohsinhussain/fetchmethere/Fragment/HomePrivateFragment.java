@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -16,7 +17,9 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.provider.Settings;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -182,12 +185,26 @@ public class HomePrivateFragment extends Fragment{
                             arcMenuBgLayout.setVisibility(View.INVISIBLE);
                             break;
                         case 1:
-                            mListener.onSendLocationClicked(currentLat, currentLang);
+                        {
+                            final CharSequence[] items = new CharSequence[]{"Saved Location", "Current Location"};
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setTitle("Send Location");
+                            builder.setItems(items, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int item) {
+                                    if (items[item].equals("Saved Location")) {
+                                        mListener.onMyLocationsClicked();
+                                    } else if (items[item].equals("Current Location")) {
+                                        mListener.onSendLocationClicked(currentLat, currentLang);
+                                    }
+                                }
+                            });
+                            builder.show();
                             arcMenuBgLayout.setVisibility(View.INVISIBLE);
                             break;
-
+                        }
                         case 2:
-                            if(mListener!=null){
+                            if (mListener != null) {
                                 mListener.onBusinessesClicked();
                             }
                             arcMenuBgLayout.setVisibility(View.INVISIBLE);
@@ -204,8 +221,6 @@ public class HomePrivateFragment extends Fragment{
 
 
         initMap(savedInstanceState);
-
-
 
 
         return rootView;
@@ -589,6 +604,8 @@ public class HomePrivateFragment extends Fragment{
         super.onResume();
     }
 
+
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -606,7 +623,7 @@ public class HomePrivateFragment extends Fragment{
 
     public void hideNotification(){
 
-        TranslateAnimation anim = new TranslateAnimation( 0, 0,0, -600);
+        TranslateAnimation anim = new TranslateAnimation( 0, 0,0, -800);
         anim.setDuration(1500);
         anim.setFillAfter(true);
         notificationLayout.startAnimation(anim);
@@ -619,7 +636,7 @@ public class HomePrivateFragment extends Fragment{
         questionLayout.setVisibility(View.VISIBLE);
         acceptenceLayout.setVisibility(View.VISIBLE);
 
-        TranslateAnimation anim = new TranslateAnimation( 0, 0, -400, 0 );
+        TranslateAnimation anim = new TranslateAnimation( 0, 0, -800, 0 );
         anim.setDuration(1500);
         anim.setInterpolator(new BounceInterpolator());
         anim.setFillAfter(true);
@@ -685,6 +702,8 @@ public class HomePrivateFragment extends Fragment{
         anim.setFillAfter(true);
         notificationLayout.startAnimation(anim);
     }
+
+
 
 
 

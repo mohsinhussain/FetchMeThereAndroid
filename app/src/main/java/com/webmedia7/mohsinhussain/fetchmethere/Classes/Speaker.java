@@ -20,6 +20,7 @@ public class Speaker implements TextToSpeech.OnInitListener {
 
     public Speaker(Context context){
         tts = new TextToSpeech(context, this);
+//        tts.setEngineByPackageName(com.google)
     }
 
     public boolean isAllowed(){
@@ -47,7 +48,7 @@ public class Speaker implements TextToSpeech.OnInitListener {
         // Speak only if the TTS is ready
         // and the user has allowed speech
 
-        if(ready && allowed) {
+        if(allowed) {
             HashMap<String, String> hash = new HashMap<String,String>();
             hash.put(TextToSpeech.Engine.KEY_PARAM_STREAM,
                     String.valueOf(AudioManager.STREAM_NOTIFICATION));

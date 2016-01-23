@@ -140,6 +140,7 @@
         android:layout_marginBottom="10dp"
         android:layout_gravity="center"
         android:gravity="center"
+        android:visibility="gone"
         android:background="@android:color/transparent"
         android:textSize="16dp"
         android:text="Here you can see all your saved Locations:"/>
@@ -149,6 +150,7 @@
         android:layout_width="fill_parent"
         android:orientation="vertical"
         android:layout_margin="15dp"
+        android:visibility="gone"
         android:background="@android:color/transparent"
         android:layout_height="wrap_content">
 
@@ -210,6 +212,27 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:padding="16dp"
+        android:orientation="vertical"
+        android:background="#6333"
+        android:layout_marginBottom="10dp"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:textColor="#fff"
+            android:text="TO RESTART NAVIGATION TAP THE MAP AND PRESS THE BLUE ARROW"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/directions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/activeTextView"
         android:layout_width="match_parent"
@@ -268,6 +291,8 @@
             android:singleLine="true"/>
 
     </LinearLayout>
+
+
 
 
 
