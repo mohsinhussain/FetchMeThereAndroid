@@ -32,6 +32,11 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderApi;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -48,6 +53,7 @@ import com.webmedia7.mohsinhussain.fetchmethere.Classes.DirectionsJSONParser;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.Speaker;
 import com.webmedia7.mohsinhussain.fetchmethere.FetchMeThere;
 import com.webmedia7.mohsinhussain.fetchmethere.R;
+import com.webmedia7.mohsinhussain.fetchmethere.util.ConnectionDetector;
 
 import org.json.JSONObject;
 
@@ -66,7 +72,8 @@ import java.util.Map;
 /**
  * Created by mohsinhussain on 4/18/15.
  */
-public class NavigationFragment extends Fragment implements LocationListener {
+public class NavigationFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
 
     public NavigationFragment(){}
     MapView mapView;
@@ -75,8 +82,9 @@ public class NavigationFragment extends Fragment implements LocationListener {
     private double lang;
     String userId = "";
     String myDisplayName = "";
-    private static final long MIN_TIME = 400;
-    private static final float MIN_DISTANCE = 1;
+    private static int UPDATE_INTERVAL = 5000; // 10 sec
+    private static int FATEST_INTERVAL = 1000; // 5 sec
+    private static int DISPLACEMENT = 5; // 10 meters
     LinearLayout mainLinearLayout;
     private LocationManager locationManager;
     double currentLat = 0;
@@ -116,13 +124,18 @@ public class NavigationFragment extends Fragment implements LocationListener {
     PowerManager.WakeLock wl;
     private String unit = "";
     private String voice = "";
-
+    private GoogleApiClient mGoogleApiClient;
     private final int CHECK_CODE = 0x1;
     private final int LONG_DURATION = 5000;
     private final int SHORT_DURATION = 1200;
-
+    private LocationRequest mLocationRequest;
+    FusedLocationProviderApi fusedLocationProviderApi;
+    boolean isNetworkEnabled = false;
     private Speaker speaker;
-
+    ConnectionDetector cd;
+    Boolean isInternetPresent = false;
+    boolean isGPSEnabled = false;
+    private Location mLastLocation;
 //    private OnFragmentInteractionListener mListener;
 
     private void checkTTS(){
@@ -143,6 +156,28 @@ public class NavigationFragment extends Fragment implements LocationListener {
                 startActivity(install);
             }
         }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mLocationRequest = new LocationRequest().create();
+        mLocationRequest.setInterval(UPDATE_INTERVAL);
+        mLocationRequest.setFastestInterval(FATEST_INTERVAL);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setSmallestDisplacement(DISPLACEMENT);
+        fusedLocationProviderApi = LocationServices.FusedLocationApi;
+        mGoogleApiClient = new GoogleApiClient.Builder(getActivity().getApplicationContext())
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        }
+        // creating connection detector class instance
+        cd = new ConnectionDetector(getActivity().getApplicationContext());
     }
 
     @Override
@@ -459,46 +494,68 @@ public class NavigationFragment extends Fragment implements LocationListener {
     }
 
     public void setupNewLocation(){
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        Log.v("PROVIDER", "GPS: " + LocationManager.GPS_PROVIDER);
-        Log.v("PROVIDER", "Passive: "+LocationManager.PASSIVE_PROVIDER);
-        Log.v("PROVIDER", "Network: " + LocationManager.NETWORK_PROVIDER);
-        Criteria criteria=new Criteria();
-        String provider=locationManager.getBestProvider(criteria, false);
-        Log.v("PROVIDER", "BEST: " + provider);
+        isInternetPresent = cd.isConnectingToInternet();
+        LocationManager locationManager = (LocationManager) getActivity().getApplicationContext()
+                .getSystemService(getActivity().LOCATION_SERVICE);
 
-        Location location = locationManager
-                .getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        if (location != null) {
-            currentLat = location.getLatitude();
-            currentLang = location.getLongitude();
+        // getting GPS status
+        isGPSEnabled = locationManager
+                .isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+        // getting network status
+        isNetworkEnabled = locationManager
+                .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+
+        if (!isGPSEnabled && !isInternetPresent) {
+            System.out.println("Please Enable GPS Location / Please Check Data Services");
         }
-        LatLng latLng = new LatLng(currentLat, currentLang);
+        else {
+            mLastLocation = fusedLocationProviderApi
+                    .getLastLocation(mGoogleApiClient);
+            if (mLastLocation != null) {
+                currentLat = mLastLocation.getLatitude();
+                currentLang = mLastLocation.getLongitude();
+                System.out.println("LAT" + currentLat + "LAN" + currentLang);
 
-        // Showing the current location in Google Map
-        map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        // Zoom in the Google Map
-        map.animateCamera(CameraUpdateFactory.zoomTo(15));
+                //   Toast.makeText(this, "LAT" + latitude + "LAN" + longitude, Toast.LENGTH_LONG).show();
 
-        Geocoder geocoder;
-        String snippet = "Unknown";
 
-        List<Address> addresses;
-        geocoder = new Geocoder(getActivity(), Locale.getDefault());
-
-        try {
-            System.out.println("Lat: "+currentLat+" Lang: "+currentLang);
-            addresses = geocoder.getFromLocation(currentLat, currentLang, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
-            if(addresses.size()>0){
-                snippet = addresses.get(0).getAddressLine(0)+", "+addresses.get(0).getLocality()+", "+addresses.get(0).getCountryName(); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+            } else {
+//                mLastLocation = LocationServices.FusedLocationApi.
             }
-            currentAddress = snippet;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+//            geolocation = latitude+"-"+longitude;
+//        if (location != null) {
+//            currentLat = location.getLatitude();
+//            currentLang = location.getLongitude();
+//        }
+            LatLng latLng = new LatLng(currentLat, currentLang);
+
+            // Showing the current location in Google Map
+            map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            // Zoom in the Google Map
+            map.animateCamera(CameraUpdateFactory.zoomTo(15));
+
+            Geocoder geocoder;
+            String snippet = "Unknown";
+
+            List<Address> addresses;
+            geocoder = new Geocoder(getActivity(), Locale.getDefault());
+
+            try {
+                System.out.println("Lat: " + currentLat + " Lang: " + currentLang);
+                addresses = geocoder.getFromLocation(currentLat, currentLang, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+                if (addresses.size() > 0) {
+                    snippet = addresses.get(0).getAddressLine(0) + ", " + addresses.get(0).getLocality() + ", " + addresses.get(0).getCountryName(); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+                }
+                currentAddress = snippet;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
 
-        BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.marker_bg);
+            BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.marker_bg);
 
 
 //        MarkerOptions a = new MarkerOptions()
@@ -506,11 +563,12 @@ public class NavigationFragment extends Fragment implements LocationListener {
 //                .position(latLng)
 //                .snippet(snippet)
 //                .icon(icon);
-        currentMarker.setPosition(latLng);
-        currentMarker.setTitle("You are here");
-        currentMarker.setSnippet(snippet);
-        currentMarker.setIcon(icon);
+            currentMarker.setPosition(latLng);
+            currentMarker.setTitle("You are here");
+            currentMarker.setSnippet(snippet);
+            currentMarker.setIcon(icon);
 //        currentMarker = map.addMarker(a);
+        }
     }
 
 
@@ -560,7 +618,6 @@ public class NavigationFragment extends Fragment implements LocationListener {
     @Override
     public void onPause() {
 
-        locationManager.removeUpdates(this);
         wl.release();
         super.onPause();
     }
@@ -933,20 +990,20 @@ public class NavigationFragment extends Fragment implements LocationListener {
 
     }
 
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
+//    @Override
+//    public void onStatusChanged(String provider, int status, Bundle extras) {
+//
+//    }
+//
+//    @Override
+//    public void onProviderEnabled(String provider) {
+//
+//    }
+//
+//    @Override
+//    public void onProviderDisabled(String provider) {
+//
+//    }
 
 
     public void closeNavigation(){
@@ -1070,6 +1127,101 @@ public class NavigationFragment extends Fragment implements LocationListener {
             urlConnection.disconnect();
         }
         return data;
+    }
+
+    @Override
+    public void onStop() {
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+            stopLocationUpdates();
+        }
+
+        super.onStop();
+    }
+
+    protected void startLocationUpdates() {
+        System.out.println("startLocationUpdates()");
+        fusedLocationProviderApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+//        LocationServices.FusedLocationApi.requestLocationUpdates(
+//                mGoogleApiClient, mLocationRequest, this);
+
+    }
+
+
+    protected void stopLocationUpdates() {
+        if(mGoogleApiClient.isConnected()){
+            LocationServices.FusedLocationApi.removeLocationUpdates(
+                    mGoogleApiClient, this);
+        }
+    }
+
+//    private void displayLocation() {
+//        isInternetPresent = cd.isConnectingToInternet();
+//        LocationManager locationManager = (LocationManager) getActivity().getApplicationContext()
+//                .getSystemService(getActivity().LOCATION_SERVICE);
+//
+//        // getting GPS status
+//        isGPSEnabled = locationManager
+//                .isProviderEnabled(LocationManager.GPS_PROVIDER);
+//
+//        // getting network status
+//        isNetworkEnabled = locationManager
+//                .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+//
+//
+//        if (!isGPSEnabled && !isInternetPresent) {
+//            System.out.println("Please Enable GPS Location / Please Check Data Services");
+//        }
+//        else {
+//            mLastLocation = fusedLocationProviderApi
+//                    .getLastLocation(mGoogleApiClient);
+//            if (mLastLocation != null) {
+//                latitude = mLastLocation.getLatitude();
+//                longitude = mLastLocation.getLongitude();
+//                System.out.println("LAT" + latitude + "LAN" + longitude);
+//
+//                //   Toast.makeText(this, "LAT" + latitude + "LAN" + longitude, Toast.LENGTH_LONG).show();
+//
+//
+//            }
+//            else{
+////                mLastLocation = LocationServices.FusedLocationApi.
+//            }
+//            geolocation = latitude+"-"+longitude;
+//        }
+//    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        Log.d("ItemDetailFragment", "onConnected(): connected to Google APIs");
+        System.out.println("onConnected()");
+        // Once connected with google api, get the location
+        ///////////////////////////////////   displayLocation();
+        startLocationUpdates();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.d("ItemDetailFragment", "onConnectionSuspended(): attempting to connect");
+        mGoogleApiClient.connect();
+    }
+
+//    @Override
+//    public void onLocationChanged(Location location) {
+//// Assign the new location
+//        mLastLocation = location;
+//
+//        // Toast.makeText(getApplicationContext(), "Location changed!",
+//        //    Toast.LENGTH_SHORT).show();
+//
+//        // Displaying the new location on UI
+//        displayLocation();
+//    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.i("ItemDetailFragment", "Connection failed: ConnectionResult.getErrorCode() = "
+                + connectionResult.getErrorCode());
     }
 
     // Fetches data from url passed
