@@ -434,7 +434,7 @@ public class MainPrivateActivity extends ActionBarActivity implements HomePrivat
     }
 
     @Override
-    public void onSendSavedLocation(String locName, String address, String lat, String lang) {
+    public void onSendSavedLocation(String locName, String address, String lat, String lang, String locationImage) {
         Fragment contactsFragment = new ContactsFragment();
         Bundle bndle = new Bundle();
         bndle.putString("locName", locName);
@@ -443,6 +443,7 @@ public class MainPrivateActivity extends ActionBarActivity implements HomePrivat
         bndle.putString("lang", lang);
         bndle.putString("profileImageString", profileImageString);
         bndle.putString("action", "sendSavedLocation");
+        bndle.putString("locationImage", locationImage);
         contactsFragment.setArguments(bndle);
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

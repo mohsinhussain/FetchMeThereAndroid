@@ -1,6 +1,7 @@
 package com.webmedia7.mohsinhussain.fetchmethere.Fragment;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -24,12 +25,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.BounceInterpolator;
 import android.view.animation.TranslateAnimation;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,6 +44,11 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderApi;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -54,8 +63,10 @@ import com.webmedia7.mohsinhussain.fetchmethere.Classes.Constants;
 import com.webmedia7.mohsinhussain.fetchmethere.Classes.RoundedImageView;
 import com.webmedia7.mohsinhussain.fetchmethere.FetchMeThere;
 import com.webmedia7.mohsinhussain.fetchmethere.R;
+import com.webmedia7.mohsinhussain.fetchmethere.util.ConnectionDetector;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -66,7 +77,8 @@ import java.util.TimerTask;
 /**
  * Created by mohsinhussain on 4/18/15.
  */
-public class HomePrivateFragment extends Fragment{
+public class HomePrivateFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener{
 
     public HomePrivateFragment(){}
 
@@ -97,7 +109,40 @@ public class HomePrivateFragment extends Fragment{
     Timer timer;
     boolean gps_enabled = false;
     boolean network_enabled = false;
+    private LocationRequest mLocationRequest;
+    FusedLocationProviderApi fusedLocationProviderApi;
+    boolean isNetworkEnabled = false;
+    private static int UPDATE_INTERVAL = 5000; // 10 sec
+    private static int FATEST_INTERVAL = 1000; // 5 sec
+    private static int DISPLACEMENT = 5; // 10 meters
+    ConnectionDetector cd;
+    Boolean isInternetPresent = false;
+    boolean isGPSEnabled = false;
+    private Location mLastLocation;
+    private GoogleApiClient mGoogleApiClient;
 
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mLocationRequest = new LocationRequest().create();
+        mLocationRequest.setInterval(UPDATE_INTERVAL);
+        mLocationRequest.setFastestInterval(FATEST_INTERVAL);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setSmallestDisplacement(DISPLACEMENT);
+        fusedLocationProviderApi = LocationServices.FusedLocationApi;
+//        mGoogleApiClient = new GoogleApiClient.Builder(getActivity().getApplicationContext())
+//                .addApi(LocationServices.API)
+//                .addConnectionCallbacks(this)
+//                .addOnConnectionFailedListener(this)
+//                .build();
+//        if (mGoogleApiClient != null) {
+//            mGoogleApiClient.connect();
+//        }
+        // creating connection detector class instance
+        cd = new ConnectionDetector(getActivity().getApplicationContext());
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -222,34 +267,139 @@ public class HomePrivateFragment extends Fragment{
 
         initMap(savedInstanceState);
 
+        if(currentLat!=0){
+            // Showing the current location in Google Map
+            map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(currentLat, currentLang)));
+            // Zoom in the Google Map
+            map.animateCamera(CameraUpdateFactory.zoomTo(15));
+        }
+
 
         return rootView;
     }
 
-    @Override
-    public void onStop() {
-        locationManager.removeUpdates(locationListenerGps);
-        super.onStop();
+    public void setupNewLocation(){
+        isInternetPresent = cd.isConnectingToInternet();
+        LocationManager locationManager = (LocationManager) getActivity().getApplicationContext()
+                .getSystemService(getActivity().LOCATION_SERVICE);
+
+        // getting GPS status
+        isGPSEnabled = locationManager
+                .isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+        if(!isGPSEnabled) {
+            if (canToggleGPS()) {
+                turnGPSOn();
+            } else {
+                startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+            }
+        }
+
+        // getting network status
+        isNetworkEnabled = locationManager
+                .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+
+        if (!isGPSEnabled && !isInternetPresent) {
+            System.out.println("Please Enable GPS Location / Please Check Data Services");
+        }
+        else {
+            mLastLocation = fusedLocationProviderApi
+                    .getLastLocation(mGoogleApiClient);
+            if (mLastLocation != null) {
+                currentLat = mLastLocation.getLatitude();
+                currentLang = mLastLocation.getLongitude();
+                System.out.println("LAT" + currentLat + "LAN" + currentLang);
+
+
+            } else {
+            }
+            LatLng latLng = new LatLng(currentLat, currentLang);
+
+            // Showing the current location in Google Map
+            map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            // Zoom in the Google Map
+            map.animateCamera(CameraUpdateFactory.zoomTo(15));
+            BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.marker_bg);
+
+
+//        MarkerOptions a = new MarkerOptions()
+//                .position(latLng).title("You are here")
+//                .position(latLng)
+//                .snippet(snippet)
+//                .icon(icon);
+            currentMarker = map.addMarker(new MarkerOptions()
+                    .position(new LatLng(currentLat, currentLang))
+                    .title("You are here")
+                    .icon(icon));
+//            currentMarker.setPosition(latLng);
+//            currentMarker.setTitle("You are here");
+//            currentMarker.setIcon(icon);
+//        currentMarker = map.addMarker(a);
+        }
     }
 
-    @Override
-    public void onPause() {
-        locationManager.removeUpdates(locationListenerGps);
-        super.onPause();
-    }
-
-    @Override
-    public void onDestroyView() {
-        locationManager.removeUpdates(locationListenerGps);
-        super.onDestroyView();
-    }
+//    @Override
+//    public void onStop() {
+//        locationManager.removeUpdates(locationListenerGps);
+//        super.onStop();
+//    }
+//
+//    @Override
+//    public void onPause() {
+//        locationManager.removeUpdates(locationListenerGps);
+//        super.onPause();
+//    }
+//
+//    @Override
+//    public void onDestroyView() {
+//        locationManager.removeUpdates(locationListenerGps);
+//        super.onDestroyView();
+//    }
 
     @Override
     public void onResume() {
         getActivity().setTitle("HOME");
         mapView.onResume();
+        LatLng latLng = new LatLng(currentLat, currentLang);
+
+        // Showing the current location in Google Map
+        map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        // Zoom in the Google Map
+        map.animateCamera(CameraUpdateFactory.zoomTo(15));
+        setupNewLocation();
+
+//        if(!gps_enabled){
+//            if(canToggleGPS()){
+//                turnGPSOn();
+//            }
+//            else{
+//                startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+//            }
+
+//        BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.marker_bg);
+
+
+//        MarkerOptions a = new MarkerOptions()
+//                .position(latLng).title("You are here")
+//                .position(latLng)
+//                .snippet(snippet)
+//                .icon(icon);
+//        if(currentMarker!=null){
+//            currentMarker.setIcon(icon);
+//            currentMarker.setPosition(latLng);
+//            currentMarker.setTitle("You are here");
+//            currentMarker = map.addMarker(new MarkerOptions()
+//                    .position(new LatLng(currentLat, currentLang))
+//                    .title("You are here")
+//                    .icon(icon));
+//            map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+////        // Zoom in the Google Map
+//            map.animateCamera(CameraUpdateFactory.zoomTo(15));
+//        }
+
 //        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, locationListenerGps); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
-        updateLocation();
+//        updateLocation();
 
 
 
@@ -274,7 +424,17 @@ public class HomePrivateFragment extends Fragment{
 //                .setLabel("help popup")
 //                .setScreenName("help popup dialog")
 //                .build());
-
+//        gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+////        network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+//
+//        if(!gps_enabled){
+//            if(canToggleGPS()){
+//                turnGPSOn();
+//            }
+//            else{
+//                startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+//            }
+//        }
         //Show Location Sent notfication
         MainPrivateActivity activity = (MainPrivateActivity) getActivity();
         String messageString = activity.sendMessagetoShowPopUp();
@@ -301,6 +461,12 @@ public class HomePrivateFragment extends Fragment{
                         String lang = "";
                         String comment = "";
                         String profileImageString = "";
+                        String locationImageString = "";
+                        /**
+                         *
+                         * Add Location Image Details here
+                         *
+                         */
                         for (DataSnapshot mChild : child.getChildren()) {
                             if (mChild.getKey().equalsIgnoreCase("friendId")) {
                                 friendId = mChild.getValue().toString();
@@ -322,6 +488,9 @@ public class HomePrivateFragment extends Fragment{
                             else if (mChild.getKey().equalsIgnoreCase("profileImageString")) {
                                 profileImageString = mChild.getValue().toString();
                             }
+                            else if (mChild.getKey().equalsIgnoreCase("locationImage")) {
+                                locationImageString = mChild.getValue().toString();
+                            }
                             else if (mChild.getKey().equalsIgnoreCase("comment")) {
                                 comment = mChild.getValue().toString();
                                 if(comment.equalsIgnoreCase("")){
@@ -341,6 +510,8 @@ public class HomePrivateFragment extends Fragment{
                         final String finalLang = lang;
                         final String finalAddress = address;
                         final String finalProfileImageString = profileImageString;
+                        final String finalAddress1 = address;
+                        final String finalLocationImageString = locationImageString;
                         yesButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -357,7 +528,175 @@ public class HomePrivateFragment extends Fragment{
 
 
                                 if(mListener!=null){
-                                    mListener.onStartNavigation(finalFriendId, finalFriendName, finalLocName, finalLat, finalLang, finalAddress, currentLat, currentLang, finalProfileImageString);
+
+                                    final CharSequence[] items = new CharSequence[]{"Start", "Current Location"};
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                                    builder.setTitle("Start Navigation");
+                                    builder.setMessage("Once you reach your destination, please close the Google Maps to reveal the destination picture if available.");
+                                    builder.setPositiveButton("Start", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                            dialog.dismiss();
+
+
+                                             String navigationMode = "driving";
+                                            ringProgressDialog = ProgressDialog.show(getActivity(), "Please wait ...", "Initializing Navigation...", true);
+                                            ringProgressDialog.setCancelable(true);
+
+                                            final Firebase ref = new Firebase(Constants.BASE_URL);
+                                            Firebase postRef = ref.child("users").child(userId).child("navigationHistory");
+
+                                            Map<String, String> post1 = new HashMap<String, String>();
+                                            post1.put("friendId", finalFriendId);
+                                            post1.put("friendName", finalFriendName);
+                                            post1.put("friendLat", finalLat);
+                                            post1.put("friendLang", finalLang);
+                                            post1.put("friendLocName", finalLocName);
+                                            post1.put("friendAddress", finalAddress);
+                                            post1.put("profileImageString", finalProfileImageString);
+                                            post1.put("myUserId", userId);
+                                            post1.put("myDisplayName", myDisplayName);
+                                            post1.put("myLat", Double.toString(currentLat));
+                                            post1.put("myLang", Double.toString(currentLang));
+                                            post1.put("myAddress", finalAddress1);
+                                            post1.put("navStartTime", Long.toString(System.currentTimeMillis()));
+                                            post1.put("distanceCovered", "0");
+                                            post1.put("navEndTime", Long.toString(System.currentTimeMillis()));
+                                            post1.put("totalDistance", "0");
+                                            post1.put("totalDuration", "0");
+                                            post1.put("mode", navigationMode);
+                                            post1.put("status", "completed");
+                                            post1.put("action", "object");
+
+                                            Firebase pushRef = postRef.push();
+
+                                            pushRef.setValue(post1, new Firebase.CompletionListener() {
+                                                @Override
+                                                public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                                                    if (firebaseError != null) {
+                                                        Toast.makeText(getActivity().getApplicationContext(), "Initialization Failed." + firebaseError.getMessage(), Toast.LENGTH_LONG).show();
+                                                    } else {
+                                                        System.out.println("Data saved successfully.");
+                                                    }
+                                                }
+                                            });
+
+                                            String myNavHistReference = pushRef.getKey();
+
+
+                                            Firebase postFriendRef = ref.child("users").child(finalFriendId).child("navigationHistory");
+
+                                            Map<String, String> post2 = new HashMap<String, String>();
+                                            post2.put("friendId", userId);
+                                            post2.put("friendName", myDisplayName);
+                                            post2.put("friendLat", Double.toString(currentLat));
+                                            post2.put("friendLang", Double.toString(currentLang));
+                                            post2.put("friendLocName", "Current Location"); // update here for saved location
+                                            post2.put("friendAddress", finalAddress1);
+                                            post1.put("profileImageString", myProfileImageString);
+                                            post2.put("myUserId", finalFriendId);
+                                            post2.put("myDisplayName", finalFriendName);
+                                            post2.put("myLat", finalLat);
+                                            post2.put("myLang", finalLang);
+                                            post2.put("myAddress", finalAddress);
+                                            post2.put("navStartTime", Long.toString(System.currentTimeMillis()));
+                                            post2.put("distanceCovered", "0");
+                                            post1.put("navEndTime", Long.toString(System.currentTimeMillis()));
+                                            post1.put("totalDistance", "0");
+                                            post1.put("totalDuration", "0");
+                                            post2.put("status", "completed");
+                                            post2.put("action", "destination");
+
+                                            Firebase pushFriendRef = postFriendRef.push();
+
+                                            pushFriendRef.setValue(post2, new Firebase.CompletionListener() {
+                                                @Override
+                                                public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                                                    ringProgressDialog.dismiss();
+//                        ringProgressDialog.dismiss();
+                                                    if (firebaseError != null) {
+                                                        Toast.makeText(getActivity().getApplicationContext(), "Initialization Failed." + firebaseError.getMessage(), Toast.LENGTH_LONG).show();
+                                                    } else {
+                                                        System.out.println("Data saved successfully.");
+
+                                                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q=" + finalLat + "," + finalLang));
+                                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                        startActivity(intent);
+
+
+                                                        if(!finalLocationImageString.equalsIgnoreCase("")){
+                                                            final Dialog dialog = new Dialog(getActivity());
+                                                            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                                                            dialog.setContentView(R.layout.dialog_location_image);
+                                                            dialog.setCanceledOnTouchOutside(true);
+                                                            ImageView s=(ImageView)dialog.findViewById(R.id.locationImageView);
+                                                            Constants.setImageViewFromString(finalLocationImageString, s);
+                                                            Button btnCancel=(Button)dialog.findViewById(R.id.thanksButton);
+                                                            btnCancel.setOnClickListener(new View.OnClickListener() {
+                                                                @Override
+                                                                public void onClick(View v) {
+                                                                    dialog.dismiss();
+                                                                }
+                                                            });
+                                                            dialog.show();
+                                                        }
+
+
+
+
+
+
+//                                                        Firebase postActiveNav = ref.child("users").child(userId).child("activeNavigation");
+//
+//                                                        Map<String, String> post1 = new HashMap<String, String>();
+//                                                        post1.put("friendId", friendId);
+//                                                        post1.put("friendName", friendName);
+//                                                        post1.put("friendLat", friendLat);
+//                                                        post1.put("friendLang", friendLang);
+//                                                        post1.put("friendLocName", friendLocName);
+//                                                        post1.put("friendAddress", friendAddress);
+//                                                        post1.put("profileImageString", friendProfileImageString);
+//                                                        post1.put("myUserId", userId);
+//                                                        post1.put("myDisplayName", myDisplayName);
+//                                                        post1.put("myLat", Double.toString(currentLat));
+//                                                        post1.put("myLang", Double.toString(currentLang));
+//                                                        post1.put("myAddress", currentAddress);
+//                                                        post1.put("navStartTime", Long.toString(System.currentTimeMillis()));
+//                                                        post1.put("distanceCovered", "0");
+//                                                        post1.put("status", "active");
+//                                                        post1.put("action", "object");
+//
+////                            Firebase pushFriendRef = postFriendRef.push();
+//
+//                                                        postActiveNav.setValue(post1, new Firebase.CompletionListener() {
+//                                                            @Override
+//                                                            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+//                                                                ringProgressDialog.dismiss();
+//                                                                if (firebaseError != null) {
+//                                                                    Toast.makeText(getActivity().getApplicationContext(), "Initialization Failed." + firebaseError.getMessage(), Toast.LENGTH_LONG).show();
+//                                                                } else {
+//                                                                    System.out.println("Data saved successfully.");
+//
+//                                                                }
+//                                                            }
+//                                                        });
+                                                    }
+                                                }
+                                            });
+
+//                                            friendHistReference = pushFriendRef.getKey();
+
+
+
+
+
+
+                                        }
+                                    });
+                                    builder.show();
+
+//                                    mListener.onStartNavigation(finalFriendId, finalFriendName, finalLocName, finalLat, finalLang, finalAddress, currentLat, currentLang, finalProfileImageString);
                                 }
 
 
@@ -606,20 +945,20 @@ public class HomePrivateFragment extends Fragment{
 
 
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if(mapView!=null){
-            mapView.onDestroy();
-        }
-
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        mapView.onLowMemory();
-    }
+//    @Override
+//    public void onDestroy() {
+//        super.onDestroy();
+//        if(mapView!=null){
+//            mapView.onDestroy();
+//        }
+//
+//    }
+//
+//    @Override
+//    public void onLowMemory() {
+//        super.onLowMemory();
+//        mapView.onLowMemory();
+//    }
 
     public void hideNotification(){
 
@@ -710,14 +1049,23 @@ public class HomePrivateFragment extends Fragment{
     public void initMap(Bundle savedInstanceState){
         mapView.onCreate(savedInstanceState);
 
-        // Gets to GoogleMap from the MapView and does initialization stuff
-        map = mapView.getMap();
-        map.getUiSettings().setMyLocationButtonEnabled(false);
-        map.setMyLocationEnabled(true);
+//        if(map==null){
+            // Gets to GoogleMap from the MapView and does initialization stuff
+            map = mapView.getMap();
+            map.getUiSettings().setMyLocationButtonEnabled(false);
+            map.setMyLocationEnabled(true);
 
-        // Needs to call MapsInitializer before doing any CameraUpdateFactory calls
-        MapsInitializer.initialize(this.getActivity());
+            // Needs to call MapsInitializer before doing any CameraUpdateFactory calls
+            MapsInitializer.initialize(this.getActivity());
+//        }
+//        else{
+//            // Showing the current location in Google Map
+            map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(currentLat, currentLang)));
+//            // Zoom in the Google Map
+            map.animateCamera(CameraUpdateFactory.zoomTo(15));
+//        }
 
+//        setupNewLocation();
 //        Log.v("PROVIDER", "GPS: "+LocationManager.GPS_PROVIDER);
 //        Log.v("PROVIDER", "Passive: "+LocationManager.PASSIVE_PROVIDER);
 //        Log.v("PROVIDER", "Network: "+LocationManager.NETWORK_PROVIDER);
@@ -728,133 +1076,133 @@ public class HomePrivateFragment extends Fragment{
 
     }
 
-    public void updateLocation(){
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-
-        if(!gps_enabled){
-            if(canToggleGPS()){
-                turnGPSOn();
-            }
-            else{
-                startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-            }
-        }
-
-
-
-        if (!gps_enabled && !network_enabled) {  Context context = getActivity();
-            int duration = Toast.LENGTH_SHORT;
-            Toast toast = Toast.makeText(context, "no provider is enabled", duration);
-            toast.show();
-            Location location = locationManager
-                    .getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-            if (location != null) {
-                currentLat = location.getLatitude();
-                currentLang = location.getLongitude();
-            }
-        }
-
-        if (gps_enabled)
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
-                    locationListenerGps);
-        if (network_enabled)
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0,
-                    locationListenerNetwork);
-        timer=new Timer();
-        timer.schedule(new GetLastLocation(), 20000);
-
-
-        LatLng latLng = new LatLng(currentLat, currentLang);
-
-        // Showing the current location in Google Map
-        map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        // Zoom in the Google Map
-        map.animateCamera(CameraUpdateFactory.zoomTo(15));
-
-        Geocoder geocoder;
-        String snippet = "Unknown";
-
-        List<Address> addresses;
-        geocoder = new Geocoder(getActivity(), Locale.getDefault());
-
-        try {
-            addresses = geocoder.getFromLocation(currentLat, currentLang, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
-            if(addresses.size()>0){
-                snippet = addresses.get(0).getAddressLine(0)+", "+addresses.get(0).getLocality()+", "+addresses.get(0).getCountryName(); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-            }
-
-//            currentAddress = snippet;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-        BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.marker_bg);
-
-
-        MarkerOptions a = new MarkerOptions()
-                .title("You are here")
-                .position(latLng)
-                .snippet(snippet)
-                .icon(icon);
-
-        currentMarker = map.addMarker(a);
-    }
-
-    LocationListener locationListenerGps = new LocationListener() {
-        public void onLocationChanged(Location location) {
-            timer.cancel();
-            currentLat =location.getLatitude();
-            currentLang = location.getLongitude();
-            locationManager.removeUpdates(this);
-            locationManager.removeUpdates(locationListenerNetwork);
-            setNewPosition();
-//            Context context = getActivity();
-//            int duration = Toast.LENGTH_SHORT;
-//            Toast toast = Toast.makeText(context, "gps enabled "+currentLat + "\n" + currentLang, duration);
-//            toast.show();
-
-        }
-
-        public void onProviderDisabled(String provider) {
-        }
-
-        public void onProviderEnabled(String provider) {
-        }
-
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-        }
-    };
-
-    LocationListener locationListenerNetwork = new LocationListener() {
-        public void onLocationChanged(Location location) {
-            timer.cancel();
-            currentLat = location.getLatitude();
-            currentLang = location.getLongitude();
-            locationManager.removeUpdates(this);
-            locationManager.removeUpdates(locationListenerGps);
-            setNewPosition();
+//    public void updateLocation(){
+//        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+//        gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+//        network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 //
-//            Context context = getActivity();
+//        if(!gps_enabled){
+//            if(canToggleGPS()){
+//                turnGPSOn();
+//            }
+//            else{
+//                startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+//            }
+//        }
+//
+//
+//
+//        if (!gps_enabled && !network_enabled) {  Context context = getActivity();
 //            int duration = Toast.LENGTH_SHORT;
-//            Toast toast = Toast.makeText(context,
-//                    "network enabled"+currentLat
-//                            + "\n" + currentLang,
-//                    duration);
+//            Toast toast = Toast.makeText(context, "no provider is enabled", duration);
 //            toast.show();
-        }
+//            Location location = locationManager
+//                    .getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+//            if (location != null) {
+//                currentLat = location.getLatitude();
+//                currentLang = location.getLongitude();
+//            }
+//        }
+//
+//        if (gps_enabled)
+//            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
+//                    locationListenerGps);
+//        if (network_enabled)
+//            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0,
+//                    locationListenerNetwork);
+//        timer=new Timer();
+//        timer.schedule(new GetLastLocation(), 20000);
+//
+//
+//        LatLng latLng = new LatLng(currentLat, currentLang);
+//
+//        // Showing the current location in Google Map
+//        map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+//        // Zoom in the Google Map
+//        map.animateCamera(CameraUpdateFactory.zoomTo(15));
+//
+//        Geocoder geocoder;
+//        String snippet = "Unknown";
+//
+//        List<Address> addresses;
+//        geocoder = new Geocoder(getActivity(), Locale.getDefault());
+//
+//        try {
+//            addresses = geocoder.getFromLocation(currentLat, currentLang, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+//            if(addresses.size()>0){
+//                snippet = addresses.get(0).getAddressLine(0)+", "+addresses.get(0).getLocality()+", "+addresses.get(0).getCountryName(); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+//            }
+//
+////            currentAddress = snippet;
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//
+//        BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.marker_bg);
+//
+//
+//        MarkerOptions a = new MarkerOptions()
+//                .title("You are here")
+//                .position(latLng)
+//                .snippet(snippet)
+//                .icon(icon);
+//
+//        currentMarker = map.addMarker(a);
+//    }
 
-        public void onProviderDisabled(String provider) {
-        }
-
-        public void onProviderEnabled(String provider) {
-        }
-
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-        }
-    };
+//    LocationListener locationListenerGps = new LocationListener() {
+//        public void onLocationChanged(Location location) {
+//            timer.cancel();
+//            currentLat =location.getLatitude();
+//            currentLang = location.getLongitude();
+//            locationManager.removeUpdates(this);
+//            locationManager.removeUpdates(locationListenerNetwork);
+//            setNewPosition();
+////            Context context = getActivity();
+////            int duration = Toast.LENGTH_SHORT;
+////            Toast toast = Toast.makeText(context, "gps enabled "+currentLat + "\n" + currentLang, duration);
+////            toast.show();
+//
+//        }
+//
+//        public void onProviderDisabled(String provider) {
+//        }
+//
+//        public void onProviderEnabled(String provider) {
+//        }
+//
+//        public void onStatusChanged(String provider, int status, Bundle extras) {
+//        }
+//    };
+//
+//    LocationListener locationListenerNetwork = new LocationListener() {
+//        public void onLocationChanged(Location location) {
+//            timer.cancel();
+//            currentLat = location.getLatitude();
+//            currentLang = location.getLongitude();
+//            locationManager.removeUpdates(this);
+//            locationManager.removeUpdates(locationListenerGps);
+//            setNewPosition();
+////
+////            Context context = getActivity();
+////            int duration = Toast.LENGTH_SHORT;
+////            Toast toast = Toast.makeText(context,
+////                    "network enabled"+currentLat
+////                            + "\n" + currentLang,
+////                    duration);
+////            toast.show();
+//        }
+//
+//        public void onProviderDisabled(String provider) {
+//        }
+//
+//        public void onProviderEnabled(String provider) {
+//        }
+//
+//        public void onStatusChanged(String provider, int status, Bundle extras) {
+//        }
+//    };
 
     private boolean canToggleGPS() {
         PackageManager pacman = getActivity().getPackageManager();
@@ -897,30 +1245,6 @@ public class HomePrivateFragment extends Fragment{
         map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         // Zoom in the Google Map
         map.animateCamera(CameraUpdateFactory.zoomTo(15));
-
-        Geocoder geocoder = null;
-        String snippet = "Unknown";
-
-        List<Address> addresses;
-        if(getActivity()!=null){
-            geocoder = new Geocoder(
-                    getActivity(),
-                    Locale.getDefault());
-            try {
-                System.out.println("Lat: "+currentLat+" Lang: "+currentLang);
-                addresses = geocoder.getFromLocation(currentLat, currentLang, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
-                if(addresses.size()>0){
-                    snippet = addresses.get(0).getAddressLine(0)+", "+addresses.get(0).getLocality()+", "+addresses.get(0).getCountryName(); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-                }
-
-//            currentAddress = snippet;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-
         currentMarker.setPosition(latLng);
     }
 
@@ -930,101 +1254,101 @@ public class HomePrivateFragment extends Fragment{
 
     }
 
-    class GetLastLocation extends TimerTask {
-        @Override
-        public void run() {
-            locationManager.removeUpdates(locationListenerGps);
-            locationManager.removeUpdates(locationListenerNetwork);
-
-            Location net_loc = null, gps_loc = null;
-            if (gps_enabled)
-                gps_loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if (network_enabled)
-                net_loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-
-            //if there are both values use the latest one
-            if (gps_loc != null && net_loc != null) {
-                if (gps_loc.getTime() > net_loc.getTime()) {
-                    currentLat = gps_loc.getLatitude();
-                    currentLang = gps_loc.getLongitude();
-//                    Context context = getActivity();
-//                    Handler mainHandler = new Handler(context.getMainLooper());
-//                    Runnable myRunnable = new Runnable(){
-//                        @Override
-//                        public void run() {
-//                            Toast.makeText(getActivity(), "network lastknown " + currentLat + "\n" + currentLang, Toast.LENGTH_SHORT).show();
-//                        }
-//                    }; // This is your code
-//                    mainHandler.post(myRunnable);
-                } else {
-                    currentLat = net_loc.getLatitude();
-                    currentLang = net_loc.getLongitude();
-//                    Context context = getActivity();
-//                    // Get a handler that can be used to post to the main thread
-//                    Handler mainHandler = new Handler(context.getMainLooper());
-//                    Runnable myRunnable = new Runnable(){
-//                        @Override
-//                        public void run() {
-//                            Toast.makeText(getActivity(), "network lastknown " + currentLat + "\n" + currentLang, Toast.LENGTH_SHORT).show();
-//                        }
-//                    }; // This is your code
-//                    mainHandler.post(myRunnable);
-                }
-
-            }
-
-            if (gps_loc != null) {
-                {
-                    currentLat = gps_loc.getLatitude();
-                    currentLang = gps_loc.getLongitude();
-//                    Context context = getActivity();
-//                    Handler mainHandler = new Handler(context.getMainLooper());
-//                    Runnable myRunnable = new Runnable(){
-//                        @Override
-//                        public void run() {
-//                            Toast.makeText(getActivity(), "network lastknown " + currentLat + "\n" + currentLang, Toast.LENGTH_SHORT).show();
-//                        }
-//                    }; // This is your code
-//                    mainHandler.post(myRunnable);
-                }
-
-            }
-            if (net_loc != null) {
-                {
-                    currentLat = net_loc.getLatitude();
-                    currentLang = net_loc.getLongitude();
-//                    Context context = getActivity();
-//                    Handler mainHandler = new Handler(context.getMainLooper());
-//                    Runnable myRunnable = new Runnable(){
-//                        @Override
-//                        public void run() {
-//                            Toast.makeText(getActivity(), "network lastknown " + currentLat + "\n" + currentLang, Toast.LENGTH_SHORT).show();
-//                        }
-//                    }; // This is your code
-//                    mainHandler.post(myRunnable);
-
-                }
-            }
-//            Context context = getActivity();
-//            Handler mainHandler = new Handler(context.getMainLooper());
-//            Runnable myRunnable = new Runnable(){
-//                @Override
-//                public void run() {
-//                    Toast.makeText(getActivity(), "network lastknown " + currentLat + "\n" + currentLang, Toast.LENGTH_SHORT).show();
-//                    Location location = locationManager
-//                            .getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-//                    if (location != null) {
-//                        currentLat = location.getLatitude();
-//                        currentLang = location.getLongitude();
-//                        Log.v("HomePrivateFragment", "no last known available");
-//                    }
+//    class GetLastLocation extends TimerTask {
+//        @Override
+//        public void run() {
+//            locationManager.removeUpdates(locationListenerGps);
+//            locationManager.removeUpdates(locationListenerNetwork);
+//
+//            Location net_loc = null, gps_loc = null;
+//            if (gps_enabled)
+//                gps_loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+//            if (network_enabled)
+//                net_loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+//
+//            //if there are both values use the latest one
+//            if (gps_loc != null && net_loc != null) {
+//                if (gps_loc.getTime() > net_loc.getTime()) {
+//                    currentLat = gps_loc.getLatitude();
+//                    currentLang = gps_loc.getLongitude();
+////                    Context context = getActivity();
+////                    Handler mainHandler = new Handler(context.getMainLooper());
+////                    Runnable myRunnable = new Runnable(){
+////                        @Override
+////                        public void run() {
+////                            Toast.makeText(getActivity(), "network lastknown " + currentLat + "\n" + currentLang, Toast.LENGTH_SHORT).show();
+////                        }
+////                    }; // This is your code
+////                    mainHandler.post(myRunnable);
+//                } else {
+//                    currentLat = net_loc.getLatitude();
+//                    currentLang = net_loc.getLongitude();
+////                    Context context = getActivity();
+////                    // Get a handler that can be used to post to the main thread
+////                    Handler mainHandler = new Handler(context.getMainLooper());
+////                    Runnable myRunnable = new Runnable(){
+////                        @Override
+////                        public void run() {
+////                            Toast.makeText(getActivity(), "network lastknown " + currentLat + "\n" + currentLang, Toast.LENGTH_SHORT).show();
+////                        }
+////                    }; // This is your code
+////                    mainHandler.post(myRunnable);
 //                }
-//            }; // This is your code
-//            mainHandler.post(myRunnable);
-
-//            setNewPosition();
-        }
-    }
+//
+//            }
+//
+//            if (gps_loc != null) {
+//                {
+//                    currentLat = gps_loc.getLatitude();
+//                    currentLang = gps_loc.getLongitude();
+////                    Context context = getActivity();
+////                    Handler mainHandler = new Handler(context.getMainLooper());
+////                    Runnable myRunnable = new Runnable(){
+////                        @Override
+////                        public void run() {
+////                            Toast.makeText(getActivity(), "network lastknown " + currentLat + "\n" + currentLang, Toast.LENGTH_SHORT).show();
+////                        }
+////                    }; // This is your code
+////                    mainHandler.post(myRunnable);
+//                }
+//
+//            }
+//            if (net_loc != null) {
+//                {
+//                    currentLat = net_loc.getLatitude();
+//                    currentLang = net_loc.getLongitude();
+////                    Context context = getActivity();
+////                    Handler mainHandler = new Handler(context.getMainLooper());
+////                    Runnable myRunnable = new Runnable(){
+////                        @Override
+////                        public void run() {
+////                            Toast.makeText(getActivity(), "network lastknown " + currentLat + "\n" + currentLang, Toast.LENGTH_SHORT).show();
+////                        }
+////                    }; // This is your code
+////                    mainHandler.post(myRunnable);
+//
+//                }
+//            }
+////            Context context = getActivity();
+////            Handler mainHandler = new Handler(context.getMainLooper());
+////            Runnable myRunnable = new Runnable(){
+////                @Override
+////                public void run() {
+////                    Toast.makeText(getActivity(), "network lastknown " + currentLat + "\n" + currentLang, Toast.LENGTH_SHORT).show();
+////                    Location location = locationManager
+////                            .getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+////                    if (location != null) {
+////                        currentLat = location.getLatitude();
+////                        currentLang = location.getLongitude();
+////                        Log.v("HomePrivateFragment", "no last known available");
+////                    }
+////                }
+////            }; // This is your code
+////            mainHandler.post(myRunnable);
+//
+////            setNewPosition();
+//        }
+//    }
 
 
 
@@ -1065,6 +1389,8 @@ public class HomePrivateFragment extends Fragment{
 //
 //    }
 
+
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -1080,6 +1406,74 @@ public class HomePrivateFragment extends Fragment{
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        Log.d("ItemDetailFragment", "onConnected(): connected to Google APIs");
+        System.out.println("onConnected()");
+        // Once connected with google api, get the location
+        ///////////////////////////////////   displayLocation();
+        startLocationUpdates();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.d("ItemDetailFragment", "onConnectionSuspended(): attempting to connect");
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        currentLang = location.getLongitude();
+        currentLat = location.getLatitude();
+        setNewPosition();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.i("ItemDetailFragment", "Connection failed: ConnectionResult.getErrorCode() = "
+                + connectionResult.getErrorCode());
+    }
+
+    @Override
+    public void onStop() {
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+            stopLocationUpdates();
+        }
+
+        super.onStop();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mGoogleApiClient = new GoogleApiClient.Builder(getActivity().getApplicationContext())
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        }
+    }
+
+    protected void startLocationUpdates() {
+        System.out.println("startLocationUpdates()");
+        fusedLocationProviderApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        setupNewLocation();
+//        LocationServices.FusedLocationApi.requestLocationUpdates(
+//                mGoogleApiClient, mLocationRequest, this);
+
+    }
+
+
+    protected void stopLocationUpdates() {
+        if(mGoogleApiClient.isConnected()){
+            LocationServices.FusedLocationApi.removeLocationUpdates(
+                    mGoogleApiClient, this);
+        }
     }
 
 

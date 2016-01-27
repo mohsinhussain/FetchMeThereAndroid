@@ -156,7 +156,12 @@ public class LocationDetailFragment extends Fragment {
                     public void onClick(View v) {
 
                         if (mListener != null) {
-                            mListener.onSendSavedLocation(name, address, Double.toString(lat), Double.toString(lang));
+                            if(imagesArray.size()==0){
+                                mListener.onSendSavedLocation(name, address, Double.toString(lat), Double.toString(lang), "");
+                            }
+                            else{
+                                mListener.onSendSavedLocation(name, address, Double.toString(lat), Double.toString(lang), imagesArray.get(0));
+                            }
                         }
                     }
                 });
@@ -399,7 +404,7 @@ public class LocationDetailFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onEditLocation(String name, String address, double lat, double lang, ArrayList<String> imagesArray, String refId);
-        public void onSendSavedLocation(String locName, String address, String lat, String lang);
+        public void onSendSavedLocation(String locName, String address, String lat, String lang, String locationImage);
         public void onLocationSent(String friendName, String locationName);
         public void onRequestLocationSent(String friendName);
         public void onActionDeleteLocation(String refId, String userId);

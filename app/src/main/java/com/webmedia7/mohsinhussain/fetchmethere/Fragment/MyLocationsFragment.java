@@ -28,6 +28,8 @@ import com.webmedia7.mohsinhussain.fetchmethere.Model.Location;
 import com.webmedia7.mohsinhussain.fetchmethere.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Created by mohsinhussain on 4/18/15.
@@ -121,6 +123,12 @@ public class MyLocationsFragment extends Fragment {
                 ringProgressDialog.dismiss();
 
                 mAdapter.mHighlightedPositions = new boolean[locationArrayList.size()];
+                Collections.sort(locationArrayList, new Comparator<Location>() {
+                    @Override
+                    public int compare(Location lhs, Location rhs) {
+                        return lhs.getName().compareTo(rhs.getName());
+                    }
+                });
                 mAdapter.notifyDataSetChanged();
             }
 

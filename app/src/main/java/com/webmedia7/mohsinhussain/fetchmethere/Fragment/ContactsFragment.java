@@ -275,7 +275,7 @@ public class ContactsFragment extends Fragment {
         post1.put("lang", bundle.getString("lang"));
         post1.put("profileImageString", profileImageString);
         post1.put("comment", bundle.getString("locName"));
-
+        post1.put("locationImage", bundle.getString("locationImage"));
         postRef.push().setValue(post1, new Firebase.CompletionListener() {
             @Override
             public void onComplete(FirebaseError firebaseError, Firebase firebase) {

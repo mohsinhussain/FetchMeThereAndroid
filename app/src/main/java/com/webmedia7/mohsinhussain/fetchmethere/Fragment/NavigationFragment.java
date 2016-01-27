@@ -593,6 +593,7 @@ public class NavigationFragment extends Fragment implements GoogleApiClient.Conn
                 .icon(icon));
 
 
+
 //                MarkerOptions a = new MarkerOptions()
 //                .position(new LatLng(currentLat, currentLang)).title("You are here")
 //                .icon(icon);
@@ -633,8 +634,6 @@ public class NavigationFragment extends Fragment implements GoogleApiClient.Conn
         t.send(new HitBuilders.ScreenViewBuilder().build());
 //        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
 
-        setupNewLocation();
-
         super.onResume();
 
 
@@ -661,6 +660,7 @@ public class NavigationFragment extends Fragment implements GoogleApiClient.Conn
     @Override
     public void onLocationChanged(Location location) {
         // Getting latitude of the current location
+
         double latitude = location.getLatitude();
         currentLat = latitude;
 
@@ -670,6 +670,9 @@ public class NavigationFragment extends Fragment implements GoogleApiClient.Conn
 
         LatLng latLng = new LatLng(currentLat, currentLang);
         currentMarker.setPosition(latLng);
+        map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        // Zoom in the Google Map
+        map.animateCamera(CameraUpdateFactory.zoomTo(15));
 
 /**  Calculating Total Distance ***/
         Location locationA = new Location("point A");
@@ -1142,6 +1145,7 @@ public class NavigationFragment extends Fragment implements GoogleApiClient.Conn
     protected void startLocationUpdates() {
         System.out.println("startLocationUpdates()");
         fusedLocationProviderApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        setupNewLocation();
 //        LocationServices.FusedLocationApi.requestLocationUpdates(
 //                mGoogleApiClient, mLocationRequest, this);
 
