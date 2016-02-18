@@ -12,8 +12,9 @@
         android:textSize="22sp"/>
 
     <ImageView
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:minHeight="300dp"
         android:scaleType="fitCenter"
         android:id="@+id/locationImageView"
         android:layout_margin="16dp"/>
@@ -24,11 +25,11 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:padding="8dp"
-        android:textSize="14sp"/>
+        android:textSize="18sp"/>
 
     <Button
         android:id="@+id/thanksButton"
-        android:text="OK, Thanks"
+        android:text="Thank you for using FetchMeThere"
         android:padding="8dp"
         android:gravity="center"
         android:layout_width="match_parent"

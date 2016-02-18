@@ -761,7 +761,7 @@ public class HomePrivateFragment extends Fragment implements GoogleApiClient.Con
 
                         Constants.setImageViewFromString(profileImageString, profileImageView);
                         messageTextView.setText(friendName + " just requested your current location.\nComments: "+comment);
-                        questionTextView.setText("Do you want us to send your current location?");
+                        questionTextView.setText("Do you want us to send a location?");
                         yesButton.setText("SEND LOCATION");
                         noButton.setText("DECLINE");
                         final String finalFriendId = friendId;
@@ -785,36 +785,53 @@ public class HomePrivateFragment extends Fragment implements GoogleApiClient.Con
                                                                  finalSnippet = snippet;
                                                              }
 
-                                                             ringProgressDialog = ProgressDialog.show(getActivity(), "Please wait ...", "Sending Location...", true);
-                                                             ringProgressDialog.setCancelable(true);
-
-                                                             final Firebase ref = new Firebase(Constants.BASE_URL);
-                                                             Firebase postRef = ref.child("users").child(finalFriendId).child("receivedLocations");
-
-                                                             Map<String, String> post1 = new HashMap<String, String>();
-                                                             post1.put("friendId", userId);
-                                                             post1.put("friendName", myDisplayName);
-                                                             post1.put("locName", "Current Location");
-                                                             post1.put("address", finalSnippet);
-                                                             post1.put("lat", Double.toString(currentLat));
-                                                             post1.put("lang", Double.toString(currentLang));
-                                                             post1.put("profileImageView", myProfileImageString);
-                                                             post1.put("comment", "Here is my current location");
-
-                                                             postRef.push().setValue(post1, new Firebase.CompletionListener() {
+                                                             final CharSequence[] items = new CharSequence[]{"Saved Location", "Current Location"};
+                                                             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                                                             builder.setTitle("Send Location");
+                                                             final String finalSnippet1 = finalSnippet;
+                                                             builder.setItems(items, new DialogInterface.OnClickListener() {
                                                                  @Override
-                                                                 public void onComplete(FirebaseError firebaseError, Firebase firebase) {
-                                                                     ringProgressDialog.dismiss();
-                                                                     if (firebaseError != null) {
-                                                                         Toast.makeText(getActivity().getApplicationContext(), "Location could not be sent.", Toast.LENGTH_LONG).show();
-                                                                     } else {
+                                                                 public void onClick(DialogInterface dialog, int item) {
+                                                                     if (items[item].equals("Saved Location")) {
+                                                                         mListener.onMyLocationsClicked();
+                                                                         locationRequestedRef.setValue(null);
+                                                                     } else if (items[item].equals("Current Location")) {
+                                                                         ringProgressDialog = ProgressDialog.show(getActivity(), "Please wait ...", "Sending Location...", true);
+                                                                         ringProgressDialog.setCancelable(true);
 
-                                                                         System.out.println("Data saved successfully.");
-                                                                         Toast.makeText(getActivity().getApplicationContext(), "Your current location is sent successfully", Toast.LENGTH_LONG).show();
+                                                                         final Firebase ref = new Firebase(Constants.BASE_URL);
+                                                                         Firebase postRef = ref.child("users").child(finalFriendId).child("receivedLocations");
+
+                                                                         Map<String, String> post1 = new HashMap<String, String>();
+                                                                         post1.put("friendId", userId);
+                                                                         post1.put("friendName", myDisplayName);
+                                                                         post1.put("locName", "Current Location");
+                                                                         post1.put("address", finalSnippet1);
+                                                                         post1.put("lat", Double.toString(currentLat));
+                                                                         post1.put("lang", Double.toString(currentLang));
+                                                                         post1.put("profileImageView", myProfileImageString);
+                                                                         post1.put("comment", "Here is my current location");
+
+                                                                         postRef.push().setValue(post1, new Firebase.CompletionListener() {
+                                                                             @Override
+                                                                             public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                                                                                 ringProgressDialog.dismiss();
+                                                                                 if (firebaseError != null) {
+                                                                                     Toast.makeText(getActivity().getApplicationContext(), "Location could not be sent.", Toast.LENGTH_LONG).show();
+                                                                                 } else {
+
+                                                                                     System.out.println("Data saved successfully.");
+                                                                                     Toast.makeText(getActivity().getApplicationContext(), "Your current location is sent successfully", Toast.LENGTH_LONG).show();
+                                                                                 }
+                                                                             }
+                                                                         });
+                                                                         locationRequestedRef.setValue(null);
                                                                      }
                                                                  }
                                                              });
-                                                             locationRequestedRef.setValue(null);
+                                                             builder.show();
+
+
 
                                                          }
                                                      });
